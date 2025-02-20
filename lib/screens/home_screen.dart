@@ -3,18 +3,16 @@ import 'dart:convert';
 import 'package:beton_book/screens/Employees_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:provider/provider.dart';
 import '../login_page.dart';
 import '../services/appResources.dart';
-import '../services/app_provider.dart';
 import 'package:http/http.dart' as http;
 import '../services/scretResources.dart';
 import 'tracking_page.dart';
 import 'Logs_page.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Employee employee;
-  const HomeScreen({ required this.employee, super.key});
+  final User user;
+  const HomeScreen({ required this.user, super.key});
 
   @override
   _HomeScreenState createState() {
@@ -24,16 +22,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final storage = FlutterSecureStorage();
+  int _currentIndex = 0;
 
 
   @override
   Widget build(BuildContext context) {
-    final employee = widget.employee;
-    int _currentIndex = context.watch<AppProvider>().index;
-    final designation = employee.designation;
+    final user = widget.user;
+    final designation = user.designation;
 
     final List<Widget> pages = [
-      HomePage(employee:employee),
+      HomePage(employee:user),
       TimeTracker(),
       LogsPage(),
       EmployeesPage()
@@ -57,15 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return shouldAllowPop; // Block back navigation
         },
         child: Scaffold(
-          appBar: _currentIndex==0?homeScreenAppBar(user: employee, action: [IconButton(
-              onPressed: () async {
-                // Handle sign out action
-                await storage.delete(key: AppSecuredKey.token);
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => LogInPage()));
-              }, icon: Icon(Icons.logout))]): customAppBar(
+          appBar: _currentIndex==0?homeScreenAppBar(user: user, action: [
+            IconButton(onPressed: (){setState(() {});}, icon: Icon(Icons.refresh)),
+          ]): customAppBar(
               title:  (_currentIndex==2)?"Beton Book":"Beton Book",
               action: [ (_currentIndex==0)?
               IconButton(
@@ -78,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (context) => LogInPage()));
                   }, icon: Icon(Icons.logout)): Text(""),
               ]),
-
 
           bottomNavigationBar: ClipRRect(
               borderRadius: BorderRadius.vertical(
@@ -95,9 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 currentIndex: _currentIndex,
 
                 onTap: (index) {
-                  context.read<AppProvider>().updateScannerState(scanningState: true);
+                  print(index);
                   setState(() {
-                    context.read<AppProvider>().setIndex(index);
+                    _currentIndex = index;
                   });
 
                 },
@@ -129,8 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   )),
                               SizedBox(height: 15),
-                              Text(employee.name,style: AppStyles.textH2,),
-                              Text(employee.designation, style: AppStyles.textH3,),
+                              Text(user.name,style: AppStyles.textH2,),
+                              Text(user.designation, style: AppStyles.textH3,),
                               SizedBox(height: 15),
                               Divider(
                                 color: AppColors.accentColor,      // Color of the line
@@ -149,6 +140,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextButton(onPressed: (){}, child: Text("Subscriptions",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Rate Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Update",  style: AppStyles.textH3)),
+                          TextButton(
+                              onPressed: () async {
+                                // Handle sign out action
+                                await storage.delete(key: AppSecuredKey.userObject);
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LogInPage()));
+                              }, child: Row( children: [Text("Log Out ", style: AppStyles.textH3,),Icon(Icons.logout)]))
                         ]
                     )),
 
@@ -184,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 class HomePage extends StatefulWidget {
-  final Employee employee;
+  final User employee;
   const HomePage({ required this.employee, super.key});
 
   @override
@@ -202,74 +202,75 @@ class _HomePageState extends State<HomePage> {
     List<Attendance> attendanceList = [];
     return Container(
         child: Center( child:  Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(height: 10,),
-        Text("Total Absent ", style: AppStyles.textH1,),
-        Text("Total Late ", style: AppStyles.textH1,),
-        IconButton(onPressed: (){setState(() {});}, icon: Icon(Icons.refresh)),
-        SizedBox(height: 10,),
-        SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: FutureBuilder(
-            future: fetchAttendances(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator();
-              } else if (snapshot.hasData) {
-                print(attendanceList);
-                attendanceList = snapshot.data!;
-                return Container(
-                      width: double.infinity,
-                      child: DataTableTheme(
-                    data: DataTableThemeData(
-                      headingRowColor: MaterialStateProperty.all(
-                          AppColors.disabledMainColor), // Change to desired color
-                      headingTextStyle: AppStyles.textH2,
-                    ),
-                    child: DataTable(
-                      border: TableBorder(
-                        horizontalInside: BorderSide(color: Colors.white,
-                            width: 2), // Set horizontal borders to white
-                      ),
-                      columnSpacing: 18,
-                      columns: [
-                        DataColumn(label: Text('Date')),
-                        DataColumn(label: Text('Entry')),
-                        DataColumn(label: Text('Exit')),
-                        // DataColumn(label: Text('Status')),
-                      ],
-                      rows: attendanceList
-                          .map(
-                            (record) =>
-                            DataRow(
-                              color: MaterialStateProperty.all(
-                                  AppColors.disabledMainColor), // Sky blue background
-                              cells: [
-                                DataCell(Text(record.date)),
-                                DataCell(Text(record.punchInTime)),
-                                DataCell(Text(record.punchOutTime)),
-                                // DataCell(Text(record.status)),
-                              ],
-                            ),
-                      )
-                          .toList(),
-                    ),
-                  ));
-              } else {
-                return Text("Something went Wrong");
-              }
-            }))]
-      )));
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(height: 10,),
+              Text("Total Absent ", style: AppStyles.textH1,),
+              Text("Total Late ", style: AppStyles.textH1,),
+              Row(children: [
+
+              ],),
+              SizedBox(height: 10,),
+              SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: FutureBuilder(
+                      future: fetchAttendances(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasData) {
+                          print(attendanceList);
+                          attendanceList = snapshot.data!;
+                          return Container(
+                              width: double.infinity,
+                              child: DataTableTheme(
+                                data: DataTableThemeData(
+                                  headingRowColor: MaterialStateProperty.all(
+                                      AppColors.mainColor), // Change to desired color
+                                  headingTextStyle: AppStyles.textH2w,
+                                ),
+                                child: DataTable(
+                                  border: TableBorder(
+                                    horizontalInside: BorderSide(width: 0), // Set horizontal borders to white
+                                  ),
+                                  columnSpacing: 18,
+                                  columns: [
+                                    DataColumn(label: Text('Date')),
+                                    DataColumn(label: Text('Entry')),
+                                    DataColumn(label: Text('Exit')),
+                                    // DataColumn(label: Text('Status')),
+                                  ],
+                                  rows: attendanceList
+                                      .map(
+                                        (record) =>
+                                        DataRow(
+                                          color: MaterialStateProperty.all(
+                                              Colors.transparent), // Sky blue background
+                                          cells: [
+                                            DataCell(Text(record.date)),
+                                            DataCell(Text(record.punchInTime)),
+                                            DataCell(Text(record.punchOutTime)),
+                                            // DataCell(Text(record.status)),
+                                          ],
+                                        ),
+                                  )
+                                      .toList(),
+                                ),
+                              ));
+                        } else {
+                          return Text("Something went Wrong");
+                        }
+                      }))]
+        )));
   }
 
   Future<List<Attendance>?> fetchAttendances()async{
-    final url = "${AppApis.attendenceLog}?employee=${widget.employee.id}";
+    final url = "${AppApis.attendanceLog}?employee=${widget.employee.id}";
     final response = await http.get(Uri.parse(url));
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
       List<Attendance> attendanceList = Attendance.fromJsonList(response.body);
-        return  attendanceList;
+      return  attendanceList;
     }
   }
 }

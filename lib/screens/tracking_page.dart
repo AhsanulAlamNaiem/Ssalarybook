@@ -23,16 +23,18 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   final securedDesignation = "designation";
   bool isScanned = false;
   String _locationMessage = "No location Found";
+  Position? position;
   bool isGettingLocation = false;
   double distance = 10000;
   bool canPunchIn = false;
-  bool didPunheIn = false;
+  bool didPunchIn = false;
   bool isLoading = false;
 
   @override
   void initState() {
     // TODO: implement initState
     _getCurrentLocation();
+    _checkPunchedInOrNot();
   }
 
   @override
@@ -44,7 +46,6 @@ class _TimeTrackerPageState extends State<TimeTracker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(""),
               Column(children: [
                 Text("Saturday, 23 January", style: AppStyles.textH1),
                 Text("Start Time: 8:57 AM", style: AppStyles.textH1),
@@ -69,8 +70,8 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               [CircularProgressIndicator()]:
               [
                 Text(_locationMessage, style: AppStyles.textH3,),
-                Text("\nDistance From Office: $distance metre", style: AppStyles.textH3,),
-                Text("You can not Punch In due to distance", style: AppStyles.textH3,),
+                Text("\nDistance From Office: ${double.parse(distance.toStringAsFixed(2))} metre", style: AppStyles.textH3,),
+                Text(canPunchIn?"":"You can not Punch In due to distance", style: AppStyles.textH3,),
               ]
               ),
               Text(""),
@@ -92,7 +93,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
                     return;
                   }
-                  print("Punched IN");
+                  print(didPunchIn?"Punch Out":"Punch IN");
                 }:null,
                 child: Text(
                     "Punch In", style: AppStyles.textOnMainColorheading),
@@ -137,6 +138,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     setState(() {
       isGettingLocation = true;
     });
+    User user = context.read<AppProvider>().user!;
     LocationPermission permission = await Geolocator.requestPermission();
 
     if (permission == LocationPermission.denied) {
@@ -149,12 +151,12 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    // distance = Geolocator.distanceBetween(
-    //   position.latitude,
-    //   position.longitude,
-    //   position.latitude,
-    //   position.longitude,
-    // );
+    distance = Geolocator.distanceBetween(
+      position.latitude,
+      position.longitude,
+      user.companyLatitude,
+      user.companyLongitude
+    );
 
     setState(() {
       isGettingLocation=false;
@@ -169,8 +171,16 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       isLoading = true;
     });
 
-    final url = Uri.parse(AppApis.login);
-    final body = jsonEncode({});
+    final url = Uri.parse(didPunchIn?AppApis.punchOut: AppApis.punchIn);
+    final body = jsonEncode(
+        {
+          "employee_id": 1,
+          "company_id": 1,
+          "entry_latitude": "${position!.latitude}",
+          "entry_longitude": "${position!.longitude}"
+        }
+    );
+
     final headers = {'Content-Type': 'application/json'};
     final response = await http.post(url, body: body, headers: headers);
 
@@ -187,5 +197,9 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  _checkPunchedInOrNot(){
+    didPunchIn=false;
   }
 }

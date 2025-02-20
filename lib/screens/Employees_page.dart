@@ -9,7 +9,7 @@ class EmployeesPage extends StatefulWidget {
 }
 
 class _EmployeesPageState extends State<EmployeesPage> {
-  List<Employee> lstEmployee =[];
+  List<User> lstEmployee =[];
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
 
     });
   }
-  void _navigateToDetailedEmployeePage(BuildContext context, Employee employee) {
+  void _navigateToDetailedEmployeePage(BuildContext context, User employee) {
 
   }
 

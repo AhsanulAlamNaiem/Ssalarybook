@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:beton_book/services/appResources.dart';
 import 'package:beton_book/services/app_provider.dart';
 import 'package:beton_book/services/scretResources.dart';
@@ -48,44 +50,34 @@ class SplashScreen extends StatefulWidget {
 class _SPlashScreenState extends State<SplashScreen> {
   final storage = FlutterSecureStorage();
   String? designation;
-  Future<Employee?> loginControl() async {
-    // final name =  "John Doe";
-    // final designation = "admin";
-    // final department = "Engineering";
-    // final company = "Acme Corporation";
 
-    // await storage.write(key: securedKey, value: "252534563456");
-    // await storage.write(key: securedName, value: name);
-    // await storage.write(key: securedDesignation, value: designation);
-    // await storage.write(key: securedDepartment, value: department);
-    // await storage.write(key: securedCompany, value: company);
+  @override
+  void initState() {
+    // TODO: implement initState
+    _loginControl();
+  }
 
-    final token = await storage.read(key: AppSecuredKey.token);
-    final name = await storage.read(key: AppSecuredKey.name);
-    designation = await storage.read(key: AppSecuredKey.designation);
-    final department = await storage.read(key: AppSecuredKey.department);
-    final company = await storage.read(key: AppSecuredKey.company) ;
-    final id = await storage.read(key: AppSecuredKey.id);
-    final List<Attendance> att=[];
+  Future<void> _loginControl() async {
+    Future.delayed(Duration(seconds: 5), () {
+      print("wait 5 second");
+    });
+    print("doing next");
 
-    print("token $token");
-    if (token != null) {
-      final user = Employee(
-          id:int.parse(id!),
-          name: name!,
-          designation: designation!,
-          department: department!,
-          phone: company!,
-          email: "a@b.c",
-          company: ""
-      );
+    final strUser = await storage.read(key: AppSecuredKey.userObject);
 
-      return user;
+    print("token $strUser");
+    if (strUser != null) {
+      User user = User.buildFromJson(jsonDecode(strUser));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<AppProvider>().updateEmployee(newUser: user);
+      });
+
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen(
+          user: user
+      )));
+    } else{
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogInPage()));
     }
-    return null;
-
-
-
   }
 
   @override
@@ -94,28 +86,11 @@ class _SPlashScreenState extends State<SplashScreen> {
         appBar: AppBar(
           title: Text(""),
         ),
-        body: FutureBuilder(
-          future: loginControl(),
-          builder: (context, snapshot) {
-            Future(() {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Column( children: [CircularProgressIndicator()]));
-              } else if (snapshot.hasData) {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen(
-                    employee: snapshot.data!
-                )));
-                // login();
-              } else {
-                print(snapshot.data);
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LogInPage()));
-              }
-            });
-            return Center(
-                child: Column(
-              children: [CircularProgressIndicator()],
-            ));
-          },
-        ));
+        body: Center(child:Column(
+          children: [
+            CircularProgressIndicator()
+          ],
+        ),)
+    );
   }
 }

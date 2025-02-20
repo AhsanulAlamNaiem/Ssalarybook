@@ -169,7 +169,7 @@ PreferredSize customAppBar({required String title, List<Widget>? action = null ,
           )));
 }
 
-PreferredSize homeScreenAppBar({required Employee user, List<Widget>? action = null , Widget? leading = null}) {
+PreferredSize homeScreenAppBar({required User user, List<Widget>? action = null , Widget? leading = null}) {
   return PreferredSize(
       preferredSize: Size.fromHeight(260), // Adjust the height as needed
       child: ClipRRect(
@@ -214,36 +214,61 @@ class AppNavigator {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
 
-class Employee {
+class User {
   final int id;
+  String currentToken;
   final String name;
   final String designation;
   final String department;
   final String phone;
   final String email;
   final String company;
+  double companyLatitude;
+  double companyLongitude;
 
-  Employee({
+  User({
     required this.id,
+    required this.currentToken,
     required this.name,
     required this.designation,
     required this.department,
     required this.phone,
     required this.email,
     required this.company,
+    required this.companyLatitude,
+    required this.companyLongitude,
   });
 
   // Factory constructor to create a User object from a JSON map
-  factory Employee.buildFromJson(Map<String, dynamic> json) {
-    return Employee(
+  factory User.buildFromJson(Map<String, dynamic> json) {
+    return User(
       id: json['id'],
+      currentToken: json['token']??"",
       name: "${json['first_name']} ${json['last_name']}",
       designation: "${json['designation']}",
       department: "${json['department']}",
       phone: "${json['phone']}",
       email: json["user"]['email'],
-      company: "${json["company"]}"
+      company: "${json["company"]}",
+      companyLatitude: json['companyLatitude']??1.22223,
+      companyLongitude: json['companyLongitude']??1.22223,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'token': currentToken,
+      'first_name': name.split(' ').first, // Assuming name contains first and last name
+      'last_name': name.split(' ').length > 1 ? name.split(' ').last : "",
+      'designation': designation,
+      'department': department,
+      'phone': phone,
+      'user': {'email': email}, // Nested structure for user email
+      'company': company,
+      'companyLatitude': companyLatitude,
+      'companyLongitude': companyLongitude,
+    };
   }
 }
 
