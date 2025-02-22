@@ -1,14 +1,13 @@
-import 'dart:convert';
-
-import 'package:beton_book/screens/Employees_page.dart';
+import 'package:beton_book/screens/Employees_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import '../login_page.dart';
 import '../services/appResources.dart';
-import 'package:http/http.dart' as http;
 import '../services/scretResources.dart';
-import 'tracking_page.dart';
 import 'Logs_page.dart';
+import 'employee_details.dart';
+import 'tracking_page.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -31,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final designation = user.designation;
 
     final List<Widget> pages = [
-      HomePage(employee:user),
+      EmployeeDetails(employee: user.toEmployee()),
       TimeTracker(),
       LogsPage(),
       EmployeesPage()
@@ -42,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       BottomNavigationBarItem(icon: Icon(Icons.access_time), label: "Track"),
     ];
     print(designation);
-    if(designation==AppDesignations.admin){
+    if(designation==AppDesignations.admin || designation==AppDesignations.adminId){
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.list), label: "Log"));
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.group), label: "Employees"));
     }
@@ -55,20 +54,23 @@ class _HomeScreenState extends State<HomeScreen> {
           return shouldAllowPop; // Block back navigation
         },
         child: Scaffold(
-          appBar: _currentIndex==0?homeScreenAppBar(user: user, action: [
-            IconButton(onPressed: (){setState(() {});}, icon: Icon(Icons.refresh)),
-          ]): customAppBar(
+          appBar: _currentIndex==0? AppBar(
+            iconTheme: const IconThemeData(color:Colors.white),
+            backgroundColor: AppColors.mainColor,
+            title: Text(""),
+            centerTitle: true,
+            actions: [
+              IconButton(onPressed: () async {setState(() {});}, icon: Icon(Icons.refresh)),
+            ],
+          ): customAppBar(
               title:  (_currentIndex==2)?"Beton Book":"Beton Book",
-              action: [ (_currentIndex==0)?
+              action: [ (_currentIndex!=1)?
               IconButton(
                   onPressed: () async {
-                    // Handle sign out action
-                    await storage.delete(key: AppSecuredKey.token);
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => LogInPage()));
-                  }, icon: Icon(Icons.logout)): Text(""),
+                      setState(() {
+
+                      });
+                  }, icon: Icon(Icons.refresh)): Text(""),
               ]),
 
           bottomNavigationBar: ClipRRect(
@@ -178,99 +180,5 @@ class _HomeScreenState extends State<HomeScreen> {
                 )),
           ),
         ));
-  }
-}
-
-
-
-class HomePage extends StatefulWidget {
-  final User employee;
-  const HomePage({ required this.employee, super.key});
-
-  @override
-  _HomePageState createState() {
-    return _HomePageState();
-  }
-}
-
-class _HomePageState extends State<HomePage> {
-  final storage = FlutterSecureStorage();
-
-
-  @override
-  Widget build(BuildContext context) {
-    List<Attendance> attendanceList = [];
-    return Container(
-        child: Center( child:  Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: 10,),
-              Text("Total Absent ", style: AppStyles.textH1,),
-              Text("Total Late ", style: AppStyles.textH1,),
-              Row(children: [
-
-              ],),
-              SizedBox(height: 10,),
-              SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: FutureBuilder(
-                      future: fetchAttendances(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        } else if (snapshot.hasData) {
-                          print(attendanceList);
-                          attendanceList = snapshot.data!;
-                          return Container(
-                              width: double.infinity,
-                              child: DataTableTheme(
-                                data: DataTableThemeData(
-                                  headingRowColor: MaterialStateProperty.all(
-                                      AppColors.mainColor), // Change to desired color
-                                  headingTextStyle: AppStyles.textH2w,
-                                ),
-                                child: DataTable(
-                                  border: TableBorder(
-                                    horizontalInside: BorderSide(width: 0), // Set horizontal borders to white
-                                  ),
-                                  columnSpacing: 18,
-                                  columns: [
-                                    DataColumn(label: Text('Date')),
-                                    DataColumn(label: Text('Entry')),
-                                    DataColumn(label: Text('Exit')),
-                                    // DataColumn(label: Text('Status')),
-                                  ],
-                                  rows: attendanceList
-                                      .map(
-                                        (record) =>
-                                        DataRow(
-                                          color: MaterialStateProperty.all(
-                                              Colors.transparent), // Sky blue background
-                                          cells: [
-                                            DataCell(Text(record.date)),
-                                            DataCell(Text(record.punchInTime)),
-                                            DataCell(Text(record.punchOutTime)),
-                                            // DataCell(Text(record.status)),
-                                          ],
-                                        ),
-                                  )
-                                      .toList(),
-                                ),
-                              ));
-                        } else {
-                          return Text("Something went Wrong");
-                        }
-                      }))]
-        )));
-  }
-
-  Future<List<Attendance>?> fetchAttendances()async{
-    final url = "${AppApis.attendanceLog}?employee=${widget.employee.id}";
-    final response = await http.get(Uri.parse(url));
-    print("${response.statusCode} ${response.body}");
-    if(response.statusCode==200){
-      List<Attendance> attendanceList = Attendance.fromJsonList(response.body);
-      return  attendanceList;
-    }
   }
 }

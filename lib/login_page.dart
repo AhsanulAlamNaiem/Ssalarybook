@@ -204,7 +204,7 @@ class _LogInPageState extends State<LogInPage> {
             employee.companyLatitude = latitude;
             employee.companyLongitude = longitude;
 
-            await storage.write(key: AppSecuredKey.userObject, value: jsonEncode(employee.toJson()));
+            if(willSavePassword)await storage.write(key: AppSecuredKey.userObject, value: jsonEncode(employee.toJson()));
 
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<AppProvider>().updateEmployee(newUser: employee);

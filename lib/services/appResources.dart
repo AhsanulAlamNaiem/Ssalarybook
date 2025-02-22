@@ -134,6 +134,7 @@ class AppStyles {
 
 class AppDesignations{
   static const String admin = "Admin";
+  static const String adminId = "3";
   static const String employee = "Employee";
 }
 
@@ -270,17 +271,32 @@ class User {
       'companyLongitude': companyLongitude,
     };
   }
+
+  Employee toEmployee() {
+    return Employee(
+      id: id,
+    email: email,
+    name: name,
+    company: company,
+    department: department,
+    phone: phone,
+    designation: designation,
+    datOfJoining: "",
+    );
+  }
 }
 
 class Attendance {
   final int id;
+  final int employee;
   final String punchInTime;
   final String punchOutTime;
   final String status;
-  final String date;
+  final DateTime date;
 
   Attendance({
     required this.id,
+    required this.employee,
     required this.punchInTime,
     required this.punchOutTime,
     required this.status,
@@ -297,10 +313,11 @@ class Attendance {
 
     Attendance att = Attendance(
       id: json['id'],
-      punchInTime: DateFormat.Hm().format(timeIn).toString(),
-      punchOutTime: DateFormat.Hm().format(timeOut).toString(),
+      employee: json['employee'],
+      punchInTime: DateFormat.Hm().format(timeIn),
+      punchOutTime: DateFormat.Hm().format(timeOut),
       status: json['status'],
-      date:  DateFormat('EEE, d MMM').format(date),
+      date:  date,
     );
     return att;
   }
@@ -308,5 +325,56 @@ class Attendance {
   static List<Attendance> fromJsonList(String jsonString){
     List<dynamic> jsonList = jsonDecode(jsonString);
     return jsonList.map((json) => Attendance.fromJson(json)).toList();
+  }
+}
+
+class Employee {
+  final int id;
+  final String name;
+  final String designation;
+  final String department;
+  final String phone;
+  final String email;
+  final String company;
+  final String datOfJoining;
+
+
+  Employee({
+    required this.id,
+    required this.name,
+    required this.designation,
+    required this.department,
+    required this.phone,
+    required this.email,
+    required this.company,
+    required this.datOfJoining,
+  });
+
+// Factory constructor to create a User object from a JSON map
+  factory Employee.buildFromJson(Map<String, dynamic> json) {
+    return Employee(
+      id: json['id'],
+      email: json["user"]['email'],
+      name: "${json['first_name']} ${json['last_name']}",
+      company: "${json["company"]}",
+      department: "${json['department']}",
+      phone: "${json['mobile']}",
+      designation: "${json['designation']}",
+      datOfJoining: json['date_of_joining'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'first_name': name.split(' ').first, // Assuming name contains first and last name
+      'last_name': name.split(' ').length > 1 ? name.split(' ').last : "",
+      'designation': designation,
+      'department': department,
+      'phone': phone,
+      'user': {'email': email}, // Nested structure for user email
+      'company': company,
+      'date_of_joining': datOfJoining,
+    };
   }
 }

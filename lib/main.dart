@@ -6,13 +6,16 @@ import 'package:beton_book/services/app_provider.dart';
 import 'package:beton_book/services/scretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:provider/provider.dart';
-
+import 'package:intl/intl.dart';
 import 'login_page.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('en_US', null);
   // await Firebase.initializeApp(); // Initialize Firebase
   // await FirebaseApi().initNotifications();
   runApp(const MyApp());
@@ -30,6 +33,12 @@ class MyApp extends StatelessWidget {
           )
       ],
     child: MaterialApp(
+      localizationsDelegates: const [
+        MonthYearPickerLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''), // Add other locales if needed
+      ],
       navigatorKey: AppNavigator.navigatorKey,
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),

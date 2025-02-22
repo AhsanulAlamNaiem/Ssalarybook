@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:beton_book/services/appResources.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../services/scretResources.dart';
+import 'employee_details_page.dart';
 
 
 class LogsPage extends StatefulWidget {
@@ -10,19 +14,34 @@ class LogsPage extends StatefulWidget {
 
 class _LogsPageState extends State<LogsPage> {
 
-  final List<Map<String, dynamic>> jsonData = [
-    {"id": 1, "date":"1 - feb", "punch_in_time": "08:00 AM", "punch_out_time": "05:00 PM", "distance": 10.5},
-    {"id": 2, "date":"2 - feb", "punch_in_time": "09:15 AM", "punch_out_time": "06:30 PM", "distance": 8.2},
-    {"id": 3, "date":"3 - feb", "punch_in_time": "07:45 AM", "punch_out_time": "04:50 PM", "distance": 12.0},
-  ];
-
-
-
+  final List<Map<String, dynamic>> jsonData = [];
+  List<Attendance> lstAttendanceLog = [];
+  List<Attendance> filteredAttendanceLog = [];
+  List<Employee> lstEmployee = [];
   DateTime selectedDate = DateTime.now();
+
+
+  void _loadAttendance() async{
+    final response = await http.get(Uri.parse(AppApis.attendanceLog));
+    final attendanceJson = jsonDecode(response.body);
+
+    final responseEmp = await http.get(Uri.parse(AppApis.employeeDetails));
+    final responseJsonEmp = jsonDecode(responseEmp.body);
+    print(responseJsonEmp);
+
+    if(response.statusCode==200) {
+      lstEmployee = responseJsonEmp.map((json){print(json); return Employee.buildFromJson(json);}).toList().cast<Employee>();
+    }
+    if(response.statusCode==200){
+      List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
+      setState(() {
+        lstAttendanceLog = attendanceList;
+      });
+    }
+  }
 
   // Function to show the date picker
   Future<void> _selectDate(BuildContext context) async {
-
     final picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
@@ -30,20 +49,34 @@ class _LogsPageState extends State<LogsPage> {
       lastDate: selectedDate.add(Duration(days: 365)),
     ) ?? selectedDate;
 
-
     if (picked != selectedDate) {
       setState(() {
         selectedDate = picked!;
+        // filteredAttendanceLog = lstAttendanceLog;
+        filteredAttendanceLog = lstAttendanceLog.where((attendence){
+          print("Selected Date:${selectedDate}");
+          print("Employee Date: ${attendence.date}");
+          return selectedDate==attendence.date;}).toList();
+        print(filteredAttendanceLog);
       });
     }
+  }
+
+  void _navigateToDetailedEmployeePage(BuildContext context, int employeeId) {
+    Employee employee = lstEmployee.firstWhere((emp){return emp.id == employeeId;});
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>EmployeeDetailsPage(employee:employee)));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _loadAttendance();
   }
 
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('EEEE, dd MMMM').format(selectedDate);
-    List<Attendance> attendanceList = jsonData.map((json) => Attendance.fromJson(json)).toList();
-
-    return Padding(
+    return lstAttendanceLog.isEmpty? Center(child: CircularProgressIndicator()) : Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -80,24 +113,26 @@ class _LogsPageState extends State<LogsPage> {
                 ),
                 columnSpacing: 18,
                 columns: [
-                  DataColumn(label: Text('Employee')),
+                  DataColumn(label: Text('Emp')),
+                  DataColumn(label: Text('Date')),
                   DataColumn(label: Text('Entry')),
                   DataColumn(label: Text('Exit')),
-                  DataColumn(label: Text('Distance')),
+                  DataColumn(label: Text('Status')),
                 ],
-                rows: attendanceList
+                rows: filteredAttendanceLog
                     .map(
                       (record) => DataRow(
                     color: MaterialStateProperty.all(AppColors.disabledMainColor), // Sky blue background
                     cells: [
-                      DataCell(Text(record.date)),
-                      DataCell(Text(record.punchInTime)),
-                      DataCell(Text(record.punchOutTime)),
-                      DataCell(Text(record.status)),
-                    ],
+                      DataCell(Text("${record.employee}"),onDoubleTap:()=>_navigateToDetailedEmployeePage(context, record.employee)),
+                      DataCell(Text(DateFormat("E, d MMM").format(record.date)),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
+                      DataCell(Text(record.punchInTime),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
+                      DataCell(Text(record.punchOutTime),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
+                      DataCell(Text(record.status=='Late'?record.status:""),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
+                    ]
                   ),
                 )
-                    .toList(),
+                    .toList()
               )
           )],
       ),
