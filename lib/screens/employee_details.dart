@@ -60,9 +60,10 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
 
   @override
   Widget build(BuildContext context) {
-    if(lstAttendanceLog!=null)filteredAttendanceLog = lstAttendanceLog!.where((att){
+    double screenWidth = MediaQuery.of(context).size.width;
+    if(lstAttendanceLog!=null){filteredAttendanceLog = lstAttendanceLog!.where((att){
       return DateFormat('MMMM yyyy').format(selectedDate) == DateFormat('MMMM yyyy').format(att.date);
-    }).toList();
+    }).toList();}
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
 
@@ -123,36 +124,81 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                 SizedBox(height: 0),
                 // Table for employee details
                 (lstAttendanceLog==null) || (employee == null)? Center(child: CircularProgressIndicator()):
-                DataTableTheme(
-                    data: DataTableThemeData(
-                      headingRowColor: MaterialStateProperty.all(AppColors.disabledMainColor), // Change to desired color
-                      headingTextStyle: AppStyles.textH2,
-                    ),
-                    child: DataTable(
-                        border: TableBorder(
-                          horizontalInside: BorderSide(color: Colors.white, width: 2), // Set horizontal borders to white
-                        ),
-                        columnSpacing: 18,
-                        columns: [
-                          DataColumn(label: Text('Date')),
-                          DataColumn(label: Text('Entry')),
-                          DataColumn(label: Text('Exit')),
-                          DataColumn(label: Text('Status')),
-                        ],
-                        rows: filteredAttendanceLog
-                        !.map(
-                              (record) => DataRow(
-                            color: MaterialStateProperty.all(AppColors.disabledMainColor), // Sky blue background
-                            cells: [
-                              DataCell(Text(DateFormat("E,d MMM").format(record.date))),
-                              DataCell(Text(record.punchInTime)),
-                              DataCell(Text(record.punchOutTime)),
-                              DataCell(Text(record.status=='Late'?record.status:"")),
-                            ],
+                Table(
+                  columnWidths: {
+                    0: FixedColumnWidth(0.33 * screenWidth), // Date column width
+                    1: FixedColumnWidth(0.2 * screenWidth), // Entry column width
+                    2: FixedColumnWidth(0.2 * screenWidth), // Exit column width
+                  },
+                  border: TableBorder(
+                    horizontalInside: BorderSide(color: Colors.white, width: 2), // Horizontal borders white
+                    verticalInside: BorderSide(color: Colors.white, width: 2),   // Vertical borders white
+                    top: BorderSide(color: Colors.white, width: 2),               // Top border
+                    bottom: BorderSide(color: Colors.white, width: 2),            // Bottom border
+                  ),
+                  children: [
+                    // Table Header
+                    TableRow(
+                      decoration: BoxDecoration(
+                        color: AppColors.mainColor, // Header row color
+                      ),
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Date',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
                           ),
-                        )
-                            .toList()
-                    )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Entry',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Exit',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Text(
+                            'Status',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // Table Rows
+                    for (var record in filteredAttendanceLog)
+                      TableRow(
+                        decoration: BoxDecoration(
+                          color: record.status == 'Late' ? Colors.red.shade100 : Colors.transparent, // Status background color
+                        ),
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(DateFormat("E, d MMM").format(record.date),textAlign: TextAlign.center,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(record.punchInTime,textAlign: TextAlign.center,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text(record.punchOutTime,textAlign: TextAlign.center,),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child:  Text(record.status == 'Late' ? record.status : "",textAlign: TextAlign.center,),
+                          ),
+                        ],
+                      ),
+                  ],
                 )],
             ),
           )]);

@@ -52,15 +52,19 @@ class _EmployeesPageState extends State<EmployeesPage> {
       itemCount: lstEmployee.length,
       itemBuilder: (context, index) {
         final employee = lstEmployee[index];
-        return Card(
+        return Container( margin: EdgeInsets.fromLTRB(10,2,2,10), child: Card(
           child: ListTile(
-            title: Column(
+            title:
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(employee.id.toString() + " " + employee.name, style: AppStyles.textH2,),
                   Text(employee.company, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.mainColor)),
                   Text(employee.designation, style: AppStyles.textH3),
-                  Row(
+                  SizedBox(height: 8,),
+                  Container(
+
+                      child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("phone: ${employee.phone}",style: TextStyle(fontSize: 13, color: AppColors.fontColorGray) ),
@@ -70,8 +74,10 @@ class _EmployeesPageState extends State<EmployeesPage> {
                         } else{
                           print("not a phone number");
                         }
-                      }, icon: Icon(Icons.phone, color: AppColors.fontColorGray, size: 20,))],),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      }, icon: Icon(Icons.phone, color: AppColors.fontColorGray, size: 18,))],)),
+                  Container(
+
+                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("mail: ${employee.email}", style: TextStyle(fontSize: 13, color: AppColors.fontColorGray)),
                       IconButton(onPressed: () async{
@@ -80,11 +86,11 @@ class _EmployeesPageState extends State<EmployeesPage> {
                         }else{
                           print("not email");
                         }},
-                          icon: Icon(Icons.mail, color: AppColors.fontColorGray, size: 20))],),
+                          icon: Icon(Icons.mail, color: AppColors.fontColorGray, size: 18))],)),
                 ]),
             onTap: () => _navigateToDetailedEmployeePage(context, employee),
           ),
-        );
+        ));
       },
     );
   }

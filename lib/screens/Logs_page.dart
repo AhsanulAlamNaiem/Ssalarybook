@@ -75,6 +75,7 @@ class _LogsPageState extends State<LogsPage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     String formattedDate = DateFormat('EEEE, dd MMMM').format(selectedDate);
     return lstAttendanceLog.isEmpty? Center(child: CircularProgressIndicator()) : Padding(
       padding: const EdgeInsets.all(8.0),
@@ -101,39 +102,97 @@ class _LogsPageState extends State<LogsPage> {
                     ],
                   ))),
           SizedBox(height: 20),
-          // Table for employee details
-          DataTableTheme(
-              data: DataTableThemeData(
-                headingRowColor: MaterialStateProperty.all(AppColors.disabledMainColor), // Change to desired color
-                headingTextStyle: AppStyles.textH2,
-              ),
-              child: DataTable(
-                border: TableBorder(
-                  horizontalInside: BorderSide(color: Colors.white, width: 2), // Set horizontal borders to white
+          Table(
+            columnWidths: {
+              0: FixedColumnWidth(0.14 * screenWidth), // Date column width
+              1: FixedColumnWidth(0.29 * screenWidth), // Entry column width
+              2: FixedColumnWidth(0.165 * screenWidth), // Exit column width
+              3: FixedColumnWidth(0.165 * screenWidth),  // Status column width// Status column width
+            },
+            border: TableBorder(
+              horizontalInside: BorderSide(color: Colors.white, width: 2), // Horizontal borders white
+              verticalInside: BorderSide(color: Colors.white, width: 2),   // Vertical borders white
+              top: BorderSide(color: Colors.white, width: 2),               // Top border
+              bottom: BorderSide(color: Colors.white, width: 2),            // Bottom border
+            ),
+            children: [
+              // Table Header
+              TableRow(
+                decoration: BoxDecoration(
+                  color: AppColors.mainColor, // Header row color
                 ),
-                columnSpacing: 18,
-                columns: [
-                  DataColumn(label: Text('Emp')),
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('Entry')),
-                  DataColumn(label: Text('Exit')),
-                  DataColumn(label: Text('Status')),
-                ],
-                rows: filteredAttendanceLog
-                    .map(
-                      (record) => DataRow(
-                    color: MaterialStateProperty.all(AppColors.disabledMainColor), // Sky blue background
-                    cells: [
-                      DataCell(Text("${record.employee}"),onDoubleTap:()=>_navigateToDetailedEmployeePage(context, record.employee)),
-                      DataCell(Text(DateFormat("E, d MMM").format(record.date)),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
-                      DataCell(Text(record.punchInTime),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
-                      DataCell(Text(record.punchOutTime),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
-                      DataCell(Text(record.status=='Late'?record.status:""),onDoubleTap:()=> _navigateToDetailedEmployeePage(context, record.employee)),
-                    ]
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Emp',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                    ),
                   ),
-                )
-                    .toList()
-              )
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Date',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Entry',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Exit',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Status',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+              // Table Rows
+              for (var record in filteredAttendanceLog)
+                TableRow(
+                  decoration: BoxDecoration(
+                    color: record.status == 'Late' ? Colors.red.shade100 : Colors.transparent, // Status background color
+                  ),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(0),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(
+                        record.employee.toString(),textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),
+                      )),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(0),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(
+                        DateFormat("E, d MMM").format(record.date),textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),
+                      )),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(0),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(record.punchInTime,textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(0),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(record.punchOutTime,textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),)),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(0),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(record.status == 'Late' ? record.status : "",textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),)),
+                    ),
+                  ],
+                ),
+            ],
           )],
       ),
     );
