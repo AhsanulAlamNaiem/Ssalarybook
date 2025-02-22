@@ -8,7 +8,7 @@
     <application
         android:label="beton_book"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:autofillHints="username, password">
         <activity
             android:name=".MainActivity"

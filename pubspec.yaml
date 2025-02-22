@@ -45,6 +45,8 @@ dependencies:
   google_maps_flutter: ^2.2.1
   url_launcher: ^6.3.1
   month_year_picker: ^0.4.0+1
+  flutter_lints: ^5.0.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -55,11 +57,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: ^0.14.3
+#  flutter_native_splash: ^2.3.6
 
-#flutter_launcher_icons:
-#  android: "launcher_icon"
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/launchericon.png"
+
+#flutter_native_splash:
+#  color: "#0000FF" # Blue background (use your preferred shade)
+#  image: assets/images/logowhite.png # Path to your white logo
+#  android: true
 #  ios: true
-#  image_path: "assets/images/panaceaLogo.png"
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

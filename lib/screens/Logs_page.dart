@@ -102,7 +102,7 @@ class _LogsPageState extends State<LogsPage> {
                     ],
                   ))),
           SizedBox(height: 20),
-          Table(
+          SingleChildScrollView( child: Table(
             columnWidths: {
               0: FixedColumnWidth(0.14 * screenWidth), // Date column width
               1: FixedColumnWidth(0.29 * screenWidth), // Entry column width
@@ -193,7 +193,7 @@ class _LogsPageState extends State<LogsPage> {
                   ],
                 ),
             ],
-          )],
+          ))],
       ),
     );
 

@@ -67,7 +67,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
 
-    return Column( children: [
+    return SingleChildScrollView( child:  Column( children: [
           Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -124,7 +124,9 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                 SizedBox(height: 0),
                 // Table for employee details
                 (lstAttendanceLog==null) || (employee == null)? Center(child: CircularProgressIndicator()):
-                Table(
+                Container(
+
+                  child: Table(
                   columnWidths: {
                     0: FixedColumnWidth(0.33 * screenWidth), // Date column width
                     1: FixedColumnWidth(0.2 * screenWidth), // Entry column width
@@ -199,9 +201,9 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                         ],
                       ),
                   ],
-                )],
+                ))],
             ),
-          )]);
+          )]));
 
   }
 }
