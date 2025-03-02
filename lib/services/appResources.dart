@@ -215,77 +215,6 @@ class AppNavigator {
   static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }
 
-class User {
-  final int id;
-  String currentToken;
-  final String name;
-  final String designation;
-  final String department;
-  final String phone;
-  final String email;
-  final String company;
-  double companyLatitude;
-  double companyLongitude;
-
-  User({
-    required this.id,
-    required this.currentToken,
-    required this.name,
-    required this.designation,
-    required this.department,
-    required this.phone,
-    required this.email,
-    required this.company,
-    required this.companyLatitude,
-    required this.companyLongitude,
-  });
-
-  // Factory constructor to create a User object from a JSON map
-  factory User.buildFromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      currentToken: json['token']??"",
-      name: "${json['first_name']} ${json['last_name']}",
-      designation: "${json['designation']}",
-      department: "${json['department']}",
-      phone: "${json['phone']}",
-      email: json["user"]['email'],
-      company: "${json["company"]}",
-      companyLatitude: json['companyLatitude']??1.22223,
-      companyLongitude: json['companyLongitude']??1.22223,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'token': currentToken,
-      'first_name': name.split(' ').first, // Assuming name contains first and last name
-      'last_name': name.split(' ').length > 1 ? name.split(' ').last : "",
-      'designation': designation,
-      'department': department,
-      'phone': phone,
-      'user': {'email': email}, // Nested structure for user email
-      'company': company,
-      'companyLatitude': companyLatitude,
-      'companyLongitude': companyLongitude,
-    };
-  }
-
-  Employee toEmployee() {
-    return Employee(
-      id: id,
-    email: email,
-    name: name,
-    company: company,
-    department: department,
-    phone: phone,
-    designation: designation,
-    datOfJoining: "",
-    );
-  }
-}
-
 class Attendance {
   final int id;
   final int employee;
@@ -336,8 +265,7 @@ class Employee {
   final String phone;
   final String email;
   final String company;
-  final String datOfJoining;
-
+  final String dateOfJoining;
 
   Employee({
     required this.id,
@@ -347,34 +275,108 @@ class Employee {
     required this.phone,
     required this.email,
     required this.company,
-    required this.datOfJoining,
+    required this.dateOfJoining,
   });
 
-// Factory constructor to create a User object from a JSON map
-  factory Employee.buildFromJson(Map<String, dynamic> json) {
+  factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
       id: json['id'],
       email: json["user"]['email'],
       name: "${json['first_name']} ${json['last_name']}",
-      company: "${json["company"]}",
-      department: "${json['department']}",
-      phone: "${json['mobile']}",
-      designation: "${json['designation']}",
-      datOfJoining: json['date_of_joining'],
+      company: json["company"],
+      department: json['department'],
+      phone: json['mobile'],
+      designation: json['designation'],
+      dateOfJoining: json['date_of_joining'] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nameParts = name.split(' ');
+    return {
+      'id': id,
+      'first_name': nameParts.first,
+      'last_name': nameParts.length > 1 ? nameParts.last : "",
+      'designation': designation,
+      'department': department,
+      'phone': phone,
+      'user': {'email': email},
+      'company': company,
+      'date_of_joining': dateOfJoining,
+    };
+  }
+}
+
+class User extends Employee {
+  String currentToken;
+  List<Location> locations;
+
+  User({
+    required int id,
+    required String name,
+    required String designation,
+    required String department,
+    required String phone,
+    required String email,
+    required String company,
+    required String dateOfJoining,
+    required this.currentToken,
+    required this.locations,
+  }) : super(
+    id: id,
+    name: name,
+    designation: designation,
+    department: department,
+    phone: phone,
+    email: email,
+    company: company,
+    dateOfJoining: dateOfJoining,
+  );
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      currentToken: json['token'] ?? "",
+      name: "${json['first_name']} ${json['last_name']}",
+      designation: json['designation'].toString(),
+      department: json['department'].toString(),
+      phone: json['phone'].toString(),
+      email: json["user"]['email'],
+      company: json["company"].toString(),
+      dateOfJoining: json['date_of_joining'] ?? "",
+      locations: [Location(longitude: 0.0, latitude: 0.0, address: "Not a company location")],
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
+    json['token'] = currentToken;
+    json['locations'] = locations.map((loc) => loc.toJson()).toList();
+    return json;
+  }
+}
+
+class Location {
+  final double longitude;
+  final double latitude;
+  final String address;
+
+  Location({required this.longitude, required this.latitude,required this.address});
+
+  factory Location.fromJson(Map<String, dynamic> json) {
+    return Location(
+      longitude: double.parse("${json['longitude']?? 0.0}"),
+      latitude: double.parse("${json['latitude'] ?? 0.0}"),
+      address: json['address'].toString(),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'first_name': name.split(' ').first, // Assuming name contains first and last name
-      'last_name': name.split(' ').length > 1 ? name.split(' ').last : "",
-      'designation': designation,
-      'department': department,
-      'phone': phone,
-      'user': {'email': email}, // Nested structure for user email
-      'company': company,
-      'date_of_joining': datOfJoining,
+      'longitude': longitude,
+      'latitude': latitude,
+      'address': address,
     };
   }
 }

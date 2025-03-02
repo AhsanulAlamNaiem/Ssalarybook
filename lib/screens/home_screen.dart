@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final designation = user.designation;
 
     final List<Widget> pages = [
-      EmployeeDetails(employee: user.toEmployee()),
+      EmployeeDetails(employee:  user),
       TimeTracker(),
       LogsPage(),
       EmployeesPage()
@@ -136,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container( child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          TextButton(onPressed: (){}, child: Text("Remote Employees", style: AppStyles.textH2,)),
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),
                           TextButton(onPressed: (){}, child: Text("Contact Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Help/FAQs",  style: AppStyles.textH3)),

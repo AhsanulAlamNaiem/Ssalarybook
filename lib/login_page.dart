@@ -169,8 +169,17 @@ class _LogInPageState extends State<LogInPage> {
 
     final url = Uri.parse(AppApis.login);
     final body = jsonEncode({"email": email, "password": password});
+
     final headers = {'Content-Type': 'application/json'};
     final response = await http.post(url, body: body, headers: headers);
+    final data = jsonDecode(response.body);
+    final token = data['data']['token'];
+    final cookies = response.headers['set-cookie']!.split(";");
+    final cookie = "${cookies[0]}; ${cookies[4].split(",")[1]}";
+    final authHeaders = {"cookie": cookie, "Authorization": "Token $token"};
+
+    print("headers: $authHeaders");
+    await storage.write(key: AppSecuredKey.token, value: jsonEncode(authHeaders));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -181,31 +190,34 @@ class _LogInPageState extends State<LogInPage> {
       print(" succes: $employeeId $token");
 
       if (token != null) {
+
+
+
         final employeeUrl = "${AppApis.employeeDetails}$employeeId/";
         final response = await http.get(Uri.parse(employeeUrl));
 
 
         if (response.statusCode == 200) {
           Map<String, dynamic> employeeInfo = jsonDecode(response.body);
-          User employee = User.buildFromJson(employeeInfo);
+          User employee = User.fromJson(employeeInfo);
 
           final companyUrl = "${AppApis.company}${employee.company}/";
           final companyResponse = await http.get(Uri.parse(companyUrl));
+          print(companyResponse.body);
+
+
 
           if (companyResponse.statusCode == 200) {
             final companyResponseJson = jsonDecode(companyResponse.body);
-            final latitude = double.parse(companyResponseJson['latitude']);
-            final longitude = double.parse(companyResponseJson['longitude']);
-
             // final double latitude = 24.9180;
             // final double longitude = 91.8376;
-
+            final branches = companyResponseJson['branches'] as List<dynamic>;
+            print(branches);
+            final List<Location>companyLocations = branches.map((branch) => Location.fromJson(branch)).toList().cast<Location>();
+            employee.locations = companyLocations;
             employee.currentToken = token;
-            employee.companyLatitude = latitude;
-            employee.companyLongitude = longitude;
 
             if(willSavePassword)await storage.write(key: AppSecuredKey.userObject, value: jsonEncode(employee.toJson()));
-
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<AppProvider>().updateEmployee(newUser: employee);
             });
@@ -228,7 +240,7 @@ class _LogInPageState extends State<LogInPage> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           HomeScreen(
-                                            user: User.buildFromJson(
+                                            user: User.fromJson(
                                                 employeeInfo),
                                           )));
                             },

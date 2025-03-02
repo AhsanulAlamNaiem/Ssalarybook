@@ -76,7 +76,7 @@ class _SPlashScreenState extends State<SplashScreen> {
 
     print("token $strUser");
     if (strUser != null) {
-      User user = User.buildFromJson(jsonDecode(strUser));
+      User user = User.fromJson(jsonDecode(strUser));
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<AppProvider>().updateEmployee(newUser: user);
       });

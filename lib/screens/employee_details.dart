@@ -21,17 +21,25 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
   DateTime selectedDate = DateTime.now();
   List<Attendance>? lstAttendanceLog;
   List<Attendance> filteredAttendanceLog=[];
+  bool isLoading = false;
 
   @override
   void initState() {
     // TODO: implement initState
     _loadAttendance();
+    setState(() {
+      isLoading = false;
+    });
   }
   void _loadAttendance() async{
+    setState(() {
+      isLoading = true;
+    });
     final employee = widget.employee;
     final url = "${AppApis.attendanceLog}?employee=${employee.id}";
     print(url);
     final response = await http.get(Uri.parse(url));
+    print(response.body);
     final attendanceJson = jsonDecode(response.body);
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
@@ -40,8 +48,6 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     }else{
       lstAttendanceLog = [];
     }
-    setState(() {
-    });
   }
 
   Future<void> _selectMonth(BuildContext context) async {
@@ -123,7 +129,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                         ))),
                 SizedBox(height: 0),
                 // Table for employee details
-                (lstAttendanceLog==null) || (employee == null)? Center(child: CircularProgressIndicator()):
+                isLoading? Center(child: CircularProgressIndicator()): (lstAttendanceLog==null) || (employee == null)? Text("No data found") :
                 Container(
 
                   child: Table(

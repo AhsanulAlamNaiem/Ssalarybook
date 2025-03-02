@@ -29,12 +29,14 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   bool canPunchIn = false;
   bool didPunchIn = false;
   bool isLoading = false;
+  Map<String, String>?  authHeaders;
 
   @override
   void initState() {
     // TODO: implement initState
     _getCurrentLocation();
     _checkPunchedInOrNot();
+    _getAuthHeaders();
   }
 
   @override
@@ -78,25 +80,26 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
               isLoading?CircularProgressIndicator(): ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
-                onPressed: canPunchIn? () {
-                  _getCurrentLocation();
-                  if(distance>100){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('You are not in office now!'),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 3),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
+                onPressed: isGettingLocation? null:() async{
+                  // await _getCurrentLocation();
+                  // if(distance>100){
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: Text('You are not in office now!'),
+                  //       backgroundColor: Colors.red,
+                  //       duration: Duration(seconds: 3),
+                  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  //       behavior: SnackBarBehavior.floating,
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
 
-                    return;
-                  }
                   print(didPunchIn?"Punch Out":"Punch IN");
-                }:null,
+                  didPunchIn? await _punchOut(): await _punchIn();
+                },
                 child: Text(
-                    "Punch In", style: AppStyles.textOnMainColorheading),
+                    didPunchIn? "Punch Out":"Punch In", style: AppStyles.textOnMainColorheading),
               ),
             ],
           ),
@@ -148,51 +151,144 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       return;
     }
 
-    Position position = await Geolocator.getCurrentPosition(
+    position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    distance = Geolocator.distanceBetween(
-      position.latitude,
-      position.longitude,
-      user.companyLatitude,
-      user.companyLongitude
-    );
 
-    setState(() {
-      isGettingLocation=false;
-      _locationMessage =
-      'Latitude: ${position.latitude},\nLongitude: ${position.longitude}';
-      if(distance<100) canPunchIn=true;
-    });
-  }
+    if(position!=null){
+      distance = Geolocator.distanceBetween(
+        position!.latitude,
+        position!.longitude,
+        user.locations[0].latitude,
+        user.locations[0].longitude,
+      );
 
-  Future<void> _doPunch() async{
+      setState(() {
+        isGettingLocation = false;
+        isGettingLocation = false;
+        _locationMessage =
+        'Latitude: ${position!.latitude},\nLongitude: ${position!.longitude}';
+        if (distance < 100) canPunchIn = true;
+      });
+    }
+    }
+
+  Future<void> _punchIn() async{
     setState(() {
       isLoading = true;
     });
 
+    final user = context.read<AppProvider>().user!;
+    print(user.locations[0].longitude);
+    print(user.locations[0].latitude);
+
     final url = Uri.parse(didPunchIn?AppApis.punchOut: AppApis.punchIn);
     final body = jsonEncode(
         {
-          "employee_id": 1,
-          "company_id": 1,
-          "entry_latitude": "${position!.latitude}",
-          "entry_longitude": "${position!.longitude}"
+          // "entry_latitude": "${position!.latitude}",
+          "entry_latitude": "${user.locations[0].latitude}",
+          // "entry_longitude": "${position!.longitude}",
+          "entry_longitude": "${user.locations[0].longitude}"
         }
     );
 
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.post(url, body: body, headers: headers);
-
+    print(body);
+    Map<String, String> headers = authHeaders!;
+    headers['Content-Type'] = 'application/json';
+    final response = await http.post(url, body: body, headers:  headers);
+    print(headers);
+    print(response.body);
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 
-      final token = data["data"]['token'];
-      final employeeId = data["data"]['employee_id'];
+      final message = "";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      didPunchIn=true;
+      await storage.write(key: AppSecuredKey.attendanceId, value: data['attendance_id'].toString());
+    } else if (response.statusCode ==400){
+      final responseJson = jsonDecode(response.body);
+      final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
 
-      print(" succes: $employeeId $token");
+      ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
 
-      if (token != null) {}
+  Future<void> _punchOut() async{
+    setState(() {
+      isLoading = true;
+    });
+
+    final user = context.read<AppProvider>().user!;
+    print(user.locations[0].longitude);
+    print(user.locations[0].latitude);
+    final attendanceId = await storage.read(key: AppSecuredKey.attendanceId);
+
+    final url = Uri.parse(AppApis.punchOut);
+    final body = jsonEncode(
+        {
+          "attendance_id": int.parse(attendanceId!),
+          "employee_id": user.id,
+          "company_id": user.company,
+          // "entry_latitude": "${position!.latitude}",
+          "exit_latitude": "${user.locations[0].latitude}",
+          // "entry_longitude": "${position!.longitude}",
+          "exit_longitude": "${user.locations[0].longitude}"
+        }
+    );
+
+    print(body);
+    Map<String, String> headers = authHeaders!;
+    headers['Content-Type'] = 'application/json';
+    final response = await http.post(url, body: body, headers:  headers);
+    print(headers);
+    print(response.body);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      final message = "";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      didPunchIn=false;
+
+    } else if (response.statusCode ==400){
+      final responseJson = jsonDecode(response.body);
+      final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
     setState(() {
       isLoading = false;
@@ -200,6 +296,20 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   }
 
   _checkPunchedInOrNot(){
-    didPunchIn=false;
+    final attendanceId = storage.read(key: AppSecuredKey.attendanceId);
+    if(attendanceId!=null){
+    setState(() {
+    didPunchIn=true;
+    });
+    }
+  }
+
+  _getAuthHeaders()async{
+    final token = await storage.read(key: AppSecuredKey.token);
+    print("token $token");
+    final tokenjson = jsonDecode(token!);
+    authHeaders = {"cookie": tokenjson['cookie'],
+    "Authorization":  tokenjson['Authorization']
+      };
   }
 }

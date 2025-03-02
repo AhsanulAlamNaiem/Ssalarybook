@@ -30,7 +30,7 @@ class _LogsPageState extends State<LogsPage> {
     print(responseJsonEmp);
 
     if(response.statusCode==200) {
-      lstEmployee = responseJsonEmp.map((json){print(json); return Employee.buildFromJson(json);}).toList().cast<Employee>();
+      lstEmployee = responseJsonEmp.map((json){print(json); return Employee.fromJson(json);}).toList().cast<Employee>();
     }
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);

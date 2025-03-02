@@ -28,7 +28,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
     final employeeJson = jsonDecode(response.body);
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
-      List<Employee> employeeList =  employeeJson.map((json){return Employee.buildFromJson(json);}).toList().cast<Employee>(); //Employee.buildFromJson(response.body);
+      List<Employee> employeeList =  employeeJson.map((json){return Employee.fromJson(json);}).toList().cast<Employee>(); //Employee.buildFromJson(response.body);
       setState(() {
         lstEmployee = employeeList;
       });
