@@ -31,6 +31,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
       isLoading = false;
     });
   }
+
   void _loadAttendance() async{
     setState(() {
       isLoading = true;
@@ -45,9 +46,13 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
       lstAttendanceLog = attendanceList;
+      print(lstAttendanceLog![0]);
+      print("attendencelog");
     }else{
       lstAttendanceLog = [];
     }
+    setState(() {
+    });
   }
 
   Future<void> _selectMonth(BuildContext context) async {
@@ -129,7 +134,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                         ))),
                 SizedBox(height: 0),
                 // Table for employee details
-                isLoading? Center(child: CircularProgressIndicator()): (lstAttendanceLog==null) || (employee == null)? Text("No data found") :
+                (lstAttendanceLog==null) || (employee == null)? Center(child: CircularProgressIndicator()) :
                 Container(
 
                   child: Table(

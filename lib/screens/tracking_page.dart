@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../services/app_provider.dart';
 import '../services/scretResources.dart';
+import 'package:intl/intl.dart';
 
 
 class TimeTracker extends StatefulWidget {
@@ -72,28 +73,15 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               [CircularProgressIndicator()]:
               [
                 Text(_locationMessage, style: AppStyles.textH3,),
-                Text("\nDistance From Office: ${double.parse(distance.toStringAsFixed(2))} metre", style: AppStyles.textH3,),
-                Text(canPunchIn?"":"You can not Punch In due to distance", style: AppStyles.textH3,),
+                Text("\nDistance From Office:\n${double.parse(distance.toStringAsFixed(2))} Metre", style: AppStyles.textH3,),
               ]
               ),
-              Text(""),
-
+              // Text(""),
+              // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
+              // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
               isLoading?CircularProgressIndicator(): ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
                 onPressed: isGettingLocation? null:() async{
-                  // await _getCurrentLocation();
-                  // if(distance>100){
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text('You are not in office now!'),
-                  //       backgroundColor: Colors.red,
-                  //       duration: Duration(seconds: 3),
-                  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  //       behavior: SnackBarBehavior.floating,
-                  //     ),
-                  //   );
-                  //   return;
-                  // }
 
                   print(didPunchIn?"Punch Out":"Punch IN");
                   didPunchIn? await _punchOut(): await _punchIn();
@@ -172,7 +160,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       });
     }
     }
-
+  // punch in >>>>>>>>>>>>>>>>>>>>>>>
   Future<void> _punchIn() async{
     setState(() {
       isLoading = true;
@@ -182,7 +170,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(user.locations[0].longitude);
     print(user.locations[0].latitude);
 
-    final url = Uri.parse(didPunchIn?AppApis.punchOut: AppApis.punchIn);
+    final url = Uri.parse(AppApis.punchIn);
     final body = jsonEncode(
         {
           // "entry_latitude": "${position!.latitude}",
@@ -198,10 +186,12 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     final response = await http.post(url, body: body, headers:  headers);
     print(headers);
     print(response.body);
-    if (response.statusCode == 200) {
+    print(response.statusCode);
+    if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
+      storage.write(key: AppSecuredKey.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
 
-      final message = "";
+      final message = data["message"];
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -211,8 +201,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      setState(() {
       didPunchIn=true;
-      await storage.write(key: AppSecuredKey.attendanceId, value: data['attendance_id'].toString());
+      });
+      await storage.write(key: AppSecuredKey.didPunchIn, value: data['attendance_id'].toString());
     } else if (response.statusCode ==400){
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
@@ -231,7 +223,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       isLoading = false;
     });
   }
-
+  // PunchOut Functions >>>>>>>>>>>>>>>>>>>>>>>>>>>
   Future<void> _punchOut() async{
     setState(() {
       isLoading = true;
@@ -240,17 +232,13 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     final user = context.read<AppProvider>().user!;
     print(user.locations[0].longitude);
     print(user.locations[0].latitude);
-    final attendanceId = await storage.read(key: AppSecuredKey.attendanceId);
 
-    final url = Uri.parse(AppApis.punchOut);
+     final url = Uri.parse(AppApis.punchOut);
     final body = jsonEncode(
         {
-          "attendance_id": int.parse(attendanceId!),
-          "employee_id": user.id,
-          "company_id": user.company,
-          // "entry_latitude": "${position!.latitude}",
+          // "exit_latitude": "${position!.latitude}",
           "exit_latitude": "${user.locations[0].latitude}",
-          // "entry_longitude": "${position!.longitude}",
+          // "exit_longitude": "${position!.longitude}",
           "exit_longitude": "${user.locations[0].longitude}"
         }
     );
@@ -258,13 +246,14 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(body);
     Map<String, String> headers = authHeaders!;
     headers['Content-Type'] = 'application/json';
-    final response = await http.post(url, body: body, headers:  headers);
+    final response = await http.post(url, body: body, headers: headers);
     print(headers);
+    print(response.statusCode  );
     print(response.body);
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
-      final message = "";
+      final message = data["message"];
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -274,8 +263,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      await storage.delete(key: AppSecuredKey.didPunchIn);
+      setState(() {
       didPunchIn=false;
-
+      });
     } else if (response.statusCode ==400){
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
@@ -295,13 +286,22 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     });
   }
 
-  _checkPunchedInOrNot(){
-    final attendanceId = storage.read(key: AppSecuredKey.attendanceId);
-    if(attendanceId!=null){
-    setState(() {
-    didPunchIn=true;
-    });
+  _checkPunchedInOrNot()async{
+    final attendanceId = await storage.read(key: AppSecuredKey.didPunchIn);
+    print("attendence: $attendanceId");
+    if(attendanceId!=null) {
+      final attendanceIdjson = jsonDecode(attendanceId);
+      final date = attendanceIdjson["date"];
+      if(date == DateFormat('yyyy-MM-dd').format(DateTime.now())){
+        didPunchIn=true;
+      } else{
+        didPunchIn = false;
+      }
+    } else{
+      didPunchIn=false;
     }
+    setState(() {
+    });
   }
 
   _getAuthHeaders()async{

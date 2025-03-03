@@ -234,10 +234,11 @@ class Attendance {
 
   // Factory method to create an Attendance object from JSON
   factory Attendance.fromJson(Map<dynamic, dynamic> json) {
-    print("from model: ${json['id']}");
+    // print(json);
+    // print("from model: ${json['id']}");
 
     DateTime timeIn = DateTime.parse(json['time_in']);
-    DateTime timeOut = DateTime.parse(json['time_out']);
+    DateTime timeOut = DateTime.parse(json['time_out']??'1990-01-01');
     DateTime date = DateTime.parse(json['date']);
 
     Attendance att = Attendance(
@@ -334,6 +335,8 @@ class User extends Employee {
   );
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final locationsListOfObject = json["locations"]??[{"longitude":0.0000,"latitude":0.0000,"address":"Not a company location"}];
+    final locationsListOfLocations = locationsListOfObject.map((json){return Location(longitude: json["longitude"], latitude: json["latitude"], address: json["address"]);}).toList().cast<Location>();
     return User(
       id: json['id'],
       currentToken: json['token'] ?? "",
@@ -344,7 +347,7 @@ class User extends Employee {
       email: json["user"]['email'],
       company: json["company"].toString(),
       dateOfJoining: json['date_of_joining'] ?? "",
-      locations: [Location(longitude: 0.0, latitude: 0.0, address: "Not a company location")],
+      locations:locationsListOfLocations,
     );
   }
 
@@ -365,6 +368,7 @@ class Location {
   Location({required this.longitude, required this.latitude,required this.address});
 
   factory Location.fromJson(Map<String, dynamic> json) {
+    print(json);
     return Location(
       longitude: double.parse("${json['longitude']?? 0.0}"),
       latitude: double.parse("${json['latitude'] ?? 0.0}"),

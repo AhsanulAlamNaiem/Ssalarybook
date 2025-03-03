@@ -73,10 +73,11 @@ class _SPlashScreenState extends State<SplashScreen> {
     print("doing next");
 
     final strUser = await storage.read(key: AppSecuredKey.userObject);
-
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogInPage()));
     print("token $strUser");
     if (strUser != null) {
       User user = User.fromJson(jsonDecode(strUser));
+      print("branches: ${user.locations[0].longitude}");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<AppProvider>().updateEmployee(newUser: user);
       });
