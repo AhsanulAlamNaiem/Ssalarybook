@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       BottomNavigationBarItem(icon: Icon(Icons.access_time), label: "Track"),
     ];
     print(designation);
-    if(designation==AppDesignations.admin || designation==AppDesignations.adminId){
+    if(user.permissionGroups.contains("Admin")){
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.list), label: "Log"));
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.group), label: "Employees"));
     }
@@ -124,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(height: 15),
                               Text(user.name,style: AppStyles.textH2,),
                               Text(user.designation, style: AppStyles.textH3,),
+                              Text(user.company, style: AppStyles.textH3,),
                               SizedBox(height: 15),
                               Divider(
                                 color: AppColors.accentColor,      // Color of the line
@@ -163,8 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Container( child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Image.asset('assets/images/ppclogotransparent.png',
-                                width: 50, height: 50,fit: BoxFit.cover),
+                            // Image.asset('assets/images/ppclogotransparent.png',
+                            //     width: 50, height: 50,fit: BoxFit.cover),
                             Text('Ptech ERP - Panacea Private Consultancy', style: AppStyles.bodyTextgray,),
                             Text('Version 1.2.1', style: AppStyles.bodyTextgray,),
                             Divider(

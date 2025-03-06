@@ -76,11 +76,13 @@ class _SPlashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogInPage()));
     print("token $strUser");
     if (strUser != null) {
+      print(strUser);
       User user = User.fromJson(jsonDecode(strUser));
       print("branches: ${user.locations[0].longitude}");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<AppProvider>().updateEmployee(newUser: user);
       });
+      print("${user.permissionGroups} ${user.designation}");
 
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen(
           user: user

@@ -45,8 +45,10 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
+      setState(() {
       lstAttendanceLog = attendanceList;
-      print(lstAttendanceLog![0]);
+      });
+      print(lstAttendanceLog!.length);
       print("attendencelog");
     }else{
       lstAttendanceLog = [];
@@ -75,6 +77,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     if(lstAttendanceLog!=null){filteredAttendanceLog = lstAttendanceLog!.where((att){
       return DateFormat('MMMM yyyy').format(selectedDate) == DateFormat('MMMM yyyy').format(att.date);
     }).toList();}
+    print(filteredAttendanceLog.length);
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
 
@@ -100,6 +103,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                           ),)),
                     Text(employee.name, style: AppStyles.textOnMainColorheading,),
                     Text(employee.designation, style: AppStyles.textH3w,),
+                    Text(employee.company, style: AppStyles.textH3w,),
                     SizedBox(height: 20,)
                   ]
               )),

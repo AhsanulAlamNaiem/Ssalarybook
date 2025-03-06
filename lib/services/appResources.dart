@@ -261,11 +261,11 @@ class Attendance {
 class Employee {
   final int id;
   final String name;
-  final String designation;
-  final String department;
+  String designation;
+  String department;
+  String company;
   final String phone;
   final String email;
-  final String company;
   final String dateOfJoining;
 
   Employee({
@@ -284,10 +284,10 @@ class Employee {
       id: json['id'],
       email: json["user"]['email'],
       name: "${json['first_name']} ${json['last_name']}",
-      company: json["company"],
-      department: json['department'],
+      company: json["company"].toString(),
+      department: json['department'].toString(),
       phone: json['mobile'],
-      designation: json['designation'],
+      designation: json['designation'].toString(),
       dateOfJoining: json['date_of_joining'] ?? "",
     );
   }
@@ -311,6 +311,7 @@ class Employee {
 class User extends Employee {
   String currentToken;
   List<Location> locations;
+  List permissionGroups;
 
   User({
     required int id,
@@ -323,6 +324,7 @@ class User extends Employee {
     required String dateOfJoining,
     required this.currentToken,
     required this.locations,
+    required this.permissionGroups,
   }) : super(
     id: id,
     name: name,
@@ -337,6 +339,7 @@ class User extends Employee {
   factory User.fromJson(Map<String, dynamic> json) {
     final locationsListOfObject = json["locations"]??[{"longitude":0.0000,"latitude":0.0000,"address":"Not a company location"}];
     final locationsListOfLocations = locationsListOfObject.map((json){return Location(longitude: json["longitude"], latitude: json["latitude"], address: json["address"]);}).toList().cast<Location>();
+
     return User(
       id: json['id'],
       currentToken: json['token'] ?? "",
@@ -348,6 +351,8 @@ class User extends Employee {
       company: json["company"].toString(),
       dateOfJoining: json['date_of_joining'] ?? "",
       locations:locationsListOfLocations,
+      permissionGroups: json["group-name"]?? [],
+
     );
   }
 
@@ -356,6 +361,7 @@ class User extends Employee {
     final json = super.toJson();
     json['token'] = currentToken;
     json['locations'] = locations.map((loc) => loc.toJson()).toList();
+    json['group-name'] = permissionGroups;
     return json;
   }
 }

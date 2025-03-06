@@ -1,3 +1,4 @@
+import 'package:beton_book/services/api_services.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:beton_book/services/appResources.dart';
@@ -162,6 +163,7 @@ class _LogInPageState extends State<LogInPage> {
             ))));
   }
 
+
   Future<void> login() async {
     setState(() {
       isLoading = true;
@@ -183,7 +185,6 @@ class _LogInPageState extends State<LogInPage> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-
       final token = data["data"]['token'];
       final employeeId = data["data"]['employee_id'];
 
@@ -192,19 +193,17 @@ class _LogInPageState extends State<LogInPage> {
       if (token != null) {
 
 
-
         final employeeUrl = "${AppApis.employeeDetails}$employeeId/";
         final response = await http.get(Uri.parse(employeeUrl));
 
 
         if (response.statusCode == 200) {
           Map<String, dynamic> employeeInfo = jsonDecode(response.body);
-          User employee = User.fromJson(employeeInfo);
+          User user = User.fromJson(employeeInfo);
 
-          final companyUrl = "${AppApis.company}${employee.company}/";
+          final companyUrl = "${AppApis.company}${user.company}/";
           final companyResponse = await http.get(Uri.parse(companyUrl));
           print(companyResponse.body);
-
 
 
           if (companyResponse.statusCode == 200) {
@@ -214,12 +213,29 @@ class _LogInPageState extends State<LogInPage> {
             final branches = companyResponseJson['branches'] as List<dynamic>;
             print(branches);
             final List<Location>companyLocations = branches.map((branch) => Location.fromJson(branch)).toList().cast<Location>();
-            employee.locations = companyLocations;
-            employee.currentToken = token;
+            user.locations = companyLocations;
+            user.currentToken = token;
 
-            if(willSavePassword)await storage.write(key: AppSecuredKey.userObject, value: jsonEncode(employee.toJson()));
+            final checkUserGroupUrl = Uri.parse(AppApis.checkUserGroup);
+            final response = await http.get(checkUserGroupUrl, headers: authHeaders);
+            print(response.body);
+
+            if (response.statusCode == 200) {
+              print("Getting Machine Permission");
+              final responseJson = jsonDecode(response.body);
+              print("Machine Permission: ${responseJson}");
+
+                user.permissionGroups = responseJson["group-name"];
+                user.designation = responseJson["designation"];
+                user.department = responseJson["department"];
+                user.company = responseJson["company"];
+
+                print("${responseJson["group-name"]} ${user.permissionGroups}");
+
+
+            if(willSavePassword)await storage.write(key: AppSecuredKey.userObject, value: jsonEncode(user.toJson()));
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<AppProvider>().updateEmployee(newUser: employee);
+              context.read<AppProvider>().updateEmployee(newUser: user);
             });
 
 
@@ -230,7 +246,7 @@ class _LogInPageState extends State<LogInPage> {
                 builder: (context) =>
                     AlertDialog(
                       title: Text("Login Successful"),
-                      content: Text("Welcome, ${employee.name}"),
+                      content: Text("Welcome, ${user.name}"),
                       actions: [
                         TextButton(
                             onPressed: () {
@@ -240,15 +256,19 @@ class _LogInPageState extends State<LogInPage> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           HomeScreen(
-                                            user: User.fromJson(
-                                                employeeInfo),
+                                            user: user,
                                           )));
                             },
                             child: Text("Ok"))
                       ],
                     ));
           }
-        } else {
+        }
+          else {
+            showError(
+                'Failed Fetching User Info\n\n ${response.body} ${response.statusCode}');
+            print(response.body);
+          }}else {
           showError(
               'Failed Fetching User Info\n\n ${response.body} ${response.statusCode}');
           print(response.body);
