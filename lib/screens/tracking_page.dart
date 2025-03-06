@@ -79,6 +79,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               // Text(""),
               // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
               // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
+              // ElevatedButton(onPressed: ()async{
+              //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
+              //   print(data);
+              // }, child: Text("read")),
               isLoading?CircularProgressIndicator(): ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
                 onPressed: isGettingLocation? null:() async{
@@ -189,7 +193,9 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(response.statusCode);
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
+      print("writing");
       storage.write(key: AppSecuredKey.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
+      print("written");
 
       final message = data["message"];
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +210,6 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       setState(() {
       didPunchIn=true;
       });
-      await storage.write(key: AppSecuredKey.didPunchIn, value: data['attendance_id'].toString());
     } else if (response.statusCode ==400){
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
