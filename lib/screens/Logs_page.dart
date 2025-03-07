@@ -25,17 +25,42 @@ class _LogsPageState extends State<LogsPage> {
     final response = await http.get(Uri.parse(AppApis.attendanceLog));
     final attendanceJson = jsonDecode(response.body);
 
-    final responseEmp = await http.get(Uri.parse(AppApis.employeeDetails));
-    final responseJsonEmp = jsonDecode(responseEmp.body);
-    print(responseJsonEmp);
-
-    if(response.statusCode==200) {
-      lstEmployee = responseJsonEmp.map((json){print(json); return Employee.fromJson(json);}).toList().cast<Employee>();
-    }
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
       setState(() {
         lstAttendanceLog = attendanceList;
+      });
+    }
+  }
+
+  void _loadEmployees() async{
+    final employees = await http.get(Uri.parse(AppApis.employeeDetails));
+    final companies = await http.get(Uri.parse(AppApis.company));
+    final designations = await http.get(Uri.parse(AppApis.designations));
+
+    final employeeJson = jsonDecode(employees.body);
+    final companiesJson = jsonDecode(companies.body);
+    final designationsJson = jsonDecode(designations.body);
+
+    print("${employees.statusCode} ${employees.body}");
+    if(employees.statusCode==200){
+      List<Employee> employeeList =  employeeJson.map((json){return Employee.fromJson(json);}).toList().cast<Employee>(); //Employee.buildFromJson(response.body);
+
+      var mergedList = employeeList.map((emp) {
+        var company = companiesJson.firstWhere((comp) => comp['id'].toString() == emp.company.toString(), orElse: () => emp.company);
+        var designation = designationsJson.firstWhere((desg) => desg['id'].toString() == emp.designation.toString(), orElse: () => emp.designation);
+
+        print("${emp.company}: $company");
+
+        emp.company = company['name'];
+        emp.designation = designation['title'];
+
+        return emp;
+      }).toList().cast<Employee>();
+
+
+      setState(() {
+        lstEmployee = mergedList;
       });
     }
   }
@@ -70,6 +95,7 @@ class _LogsPageState extends State<LogsPage> {
   @override
   void initState() {
     // TODO: implement initState
+    _loadEmployees();
     _loadAttendance();
   }
 
@@ -104,10 +130,10 @@ class _LogsPageState extends State<LogsPage> {
           SizedBox(height: 20),
           SingleChildScrollView( child: Table(
             columnWidths: {
-              0: FixedColumnWidth(0.14 * screenWidth), // Date column width
-              1: FixedColumnWidth(0.29 * screenWidth), // Entry column width
-              2: FixedColumnWidth(0.165 * screenWidth), // Exit column width
-              3: FixedColumnWidth(0.165 * screenWidth),  // Status column width// Status column width
+              0: FixedColumnWidth(0.43 * screenWidth), // Date column width
+              // 1: FixedColumnWidth(0.29 * screenWidth), // Entry column width
+              1: FixedColumnWidth(0.165 * screenWidth), // Exit column width
+              2: FixedColumnWidth(0.165 * screenWidth),  // Status column width// Status column width
             },
             border: TableBorder(
               horizontalInside: BorderSide(color: Colors.white, width: 2), // Horizontal borders white
@@ -129,13 +155,13 @@ class _LogsPageState extends State<LogsPage> {
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text(
-                      'Date',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.all(8.0),
+                  //   child: Text(
+                  //     'Date',
+                  //     style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                  //   ),
+                  // ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: Text(
@@ -168,16 +194,18 @@ class _LogsPageState extends State<LogsPage> {
                   children: [
                     Padding(
                       padding: EdgeInsets.all(0),
-                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(
-                        record.employee.toString(),textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),
+                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), style:TextButton.styleFrom(
+                        alignment: Alignment.centerLeft, // Align text to the left
+                      ), child: Text(
+                        lstEmployee.firstWhere((emp) => emp.id == record.employee).name,style: TextStyle(fontSize: 11, color: Colors.black),
                       )),
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(0),
-                      child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(
-                        DateFormat("E, d MMM").format(record.date),textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),
-                      )),
-                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.all(0),
+                    //   child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(
+                    //     DateFormat("E, d MMM").format(record.date),textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),
+                    //   )),
+                    // ),
                     Padding(
                       padding: EdgeInsets.all(0),
                       child: TextButton(onPressed: ()=>_navigateToDetailedEmployeePage(context, record.employee), child: Text(record.punchInTime,textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: Colors.black),)),

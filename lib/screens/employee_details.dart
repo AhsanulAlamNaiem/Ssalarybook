@@ -12,12 +12,12 @@ class EmployeeDetails extends StatefulWidget {
   final Employee employee;
   const EmployeeDetails({required this.employee, super.key});
   @override
-  _EmployeeDetailsState createState() {
-    return _EmployeeDetailsState();
+  EmployeeDetailsState createState() {
+    return EmployeeDetailsState();
   }
 }
 
-class _EmployeeDetailsState extends State<EmployeeDetails> {
+class EmployeeDetailsState extends State<EmployeeDetails> {
   DateTime selectedDate = DateTime.now();
   List<Attendance>? lstAttendanceLog;
   List<Attendance> filteredAttendanceLog=[];
@@ -29,6 +29,13 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
     _loadAttendance();
     setState(() {
       isLoading = false;
+    });
+  }
+
+  void refresh() {
+    setState(() {
+      // Your refresh logic goes here
+      print('Page refreshed!');
     });
   }
 
@@ -115,7 +122,7 @@ class _EmployeeDetailsState extends State<EmployeeDetails> {
                 SizedBox(height: 15,),
                 Text("Total Absent: 1 day", style: AppStyles.textH2,),
                 Text("Total Late: 1 day", style: AppStyles.textH2,),
-                Text("Salary: 10,000 BDT", style: AppStyles.textH2,),
+                Text("Salary: *,***.** BDT", style: AppStyles.textH2,),
                 SizedBox(height: 15,),
                 // Display the selected date
                 Card(

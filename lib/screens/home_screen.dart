@@ -7,6 +7,7 @@ import '../services/appResources.dart';
 import '../services/scretResources.dart';
 import 'Logs_page.dart';
 import 'employee_details.dart';
+import 'employee_details_page.dart';
 import 'tracking_page.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,6 +24,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final storage = FlutterSecureStorage();
   int _currentIndex = 0;
 
+  final GlobalKey<EmployeeDetailsState> page1Key = GlobalKey();
+
+
+  void _refreshPage() {
+    page1Key.currentState?.refresh();  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,24 +60,18 @@ class _HomeScreenState extends State<HomeScreen> {
           return shouldAllowPop; // Block back navigation
         },
         child: Scaffold(
+
           appBar: _currentIndex==0? AppBar(
             iconTheme: const IconThemeData(color:Colors.white),
             backgroundColor: AppColors.mainColor,
             title: Text(""),
             centerTitle: true,
-            actions: [
-              IconButton(onPressed: () async {setState(() {});}, icon: Icon(Icons.refresh)),
-            ],
+            // actions: [
+            //   IconButton(onPressed: () async {setState(() {});}, icon: Icon(Icons.refresh)),
+            // ],
           ): customAppBar(
               title:  (_currentIndex==2)?"Beton Book":"Beton Book",
-              action: [ (_currentIndex!=1)?
-              IconButton(
-                  onPressed: () async {
-                      setState(() {
-
-                      });
-                  }, icon: Icon(Icons.refresh)): Text(""),
-              ]),
+          ),
 
           bottomNavigationBar: ClipRRect(
               borderRadius: BorderRadius.vertical(

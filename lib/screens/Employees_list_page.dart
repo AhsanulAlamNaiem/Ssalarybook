@@ -24,16 +24,37 @@ class _EmployeesPageState extends State<EmployeesPage> {
   }
 
   void _loadEmployees() async{
-    final response = await http.get(Uri.parse(AppApis.employeeDetails));
-    final employeeJson = jsonDecode(response.body);
-    print("${response.statusCode} ${response.body}");
-    if(response.statusCode==200){
+    final employees = await http.get(Uri.parse(AppApis.employeeDetails));
+    final companies = await http.get(Uri.parse(AppApis.company));
+    final designations = await http.get(Uri.parse(AppApis.designations));
+
+    final employeeJson = jsonDecode(employees.body);
+    final companiesJson = jsonDecode(companies.body);
+    final designationsJson = jsonDecode(designations.body);
+
+    print("${employees.statusCode} ${employees.body}");
+    if(employees.statusCode==200){
       List<Employee> employeeList =  employeeJson.map((json){return Employee.fromJson(json);}).toList().cast<Employee>(); //Employee.buildFromJson(response.body);
+
+      var mergedList = employeeList.map((emp) {
+        var company = companiesJson.firstWhere((comp) => comp['id'].toString() == emp.company.toString(), orElse: () => emp.company);
+        var designation = designationsJson.firstWhere((desg) => desg['id'].toString() == emp.designation.toString(), orElse: () => emp.designation);
+
+        print("${emp.company}: $company");
+
+        emp.company = company['name'];
+        emp.designation = designation['title'];
+
+        return emp;
+      }).toList().cast<Employee>();
+
+
       setState(() {
-        lstEmployee = employeeList;
+        lstEmployee = mergedList;
       });
     }
   }
+
 
   void _refreash(){
     setState(() {
@@ -58,7 +79,7 @@ class _EmployeesPageState extends State<EmployeesPage> {
             Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(employee.id.toString() + " " + employee.name, style: AppStyles.textH2,),
+                  Text(employee.id.toString() + ") " + employee.name, style: AppStyles.textH2,),
                   Text(employee.company, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.mainColor)),
                   Text(employee.designation, style: AppStyles.textH3),
                   SizedBox(height: 8,),

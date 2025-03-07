@@ -78,6 +78,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               ),
               // Text(""),
               // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
+              // ElevatedButton(onPressed: ()=>_loadAttendance(), child: Text("load")),
               // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
               // ElevatedButton(onPressed: ()async{
               //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
@@ -292,20 +293,31 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   }
 
   _checkPunchedInOrNot()async{
-    final attendanceId = await storage.read(key: AppSecuredKey.didPunchIn);
-    print("attendence: $attendanceId");
-    if(attendanceId!=null) {
-      final attendanceIdjson = jsonDecode(attendanceId);
-      final date = attendanceIdjson["date"];
-      if(date == DateFormat('yyyy-MM-dd').format(DateTime.now())){
-        didPunchIn=true;
-      } else{
-        didPunchIn = false;
-      }
-    } else{
-      didPunchIn=false;
+    _loadAttendance();
+  }
+
+  void _loadAttendance() async{
+    setState(() {
+      isLoading = true;
+    });
+    final user = context.read<AppProvider>().user;
+    final url = "${AppApis.attendanceLog}?employee=${user!.id}";
+    print(url);
+    final response = await http.get(Uri.parse(url));
+    print(response.body);
+    final attendanceJson = jsonDecode(response.body);
+    print("${response.statusCode} ${response.body}");
+    if(response.statusCode==200){
+      var maxIdObject = attendanceJson.reduce((curr, next) => curr['id'] > next['id'] ? curr : next);
+    print(maxIdObject);
+    didPunchIn = maxIdObject["time_out"] == null;
+    print(didPunchIn);
+    setState(() {
+
+    });
     }
     setState(() {
+      isLoading = false;
     });
   }
 
