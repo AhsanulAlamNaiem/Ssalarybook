@@ -309,7 +309,7 @@ class Employee {
 }
 
 class User extends Employee {
-  String currentToken;
+
   List<Location> locations;
   List permissionGroups;
 
@@ -322,7 +322,6 @@ class User extends Employee {
     required String email,
     required String company,
     required String dateOfJoining,
-    required this.currentToken,
     required this.locations,
     required this.permissionGroups,
   }) : super(
@@ -342,7 +341,6 @@ class User extends Employee {
 
     return User(
       id: json['id'],
-      currentToken: json['token'] ?? "",
       name: "${json['first_name']} ${json['last_name']}",
       designation: json['designation'].toString(),
       department: json['department'].toString(),
@@ -359,7 +357,6 @@ class User extends Employee {
   @override
   Map<String, dynamic> toJson() {
     final json = super.toJson();
-    json['token'] = currentToken;
     json['locations'] = locations.map((loc) => loc.toJson()).toList();
     json['group-name'] = permissionGroups;
     return json;
