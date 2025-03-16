@@ -21,7 +21,7 @@ class ApiService{
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      final token = data['token'];
+      final token = data['data']["token"];
       final cookies = response.headers['set-cookie']!.split(";");
       final cookie = "${cookies[0]}; ${cookies[4].split(",")[1]}";
       authHeaders = {"cookie": cookie, "Authorization": "Token $token"};
@@ -35,7 +35,8 @@ class ApiService{
   Future<User?> fetchUserInfoFunction() async {
     final employeeUrl = Uri.parse(AppApis.employeeDetails);
     final response = await http.get(employeeUrl, headers: authHeaders);
-    print(response.body);
+    print("auth ${authHeaders}");
+    print("Info Resp ${response.body}");
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseJson = jsonDecode(response.body).cast<String,dynamic>();

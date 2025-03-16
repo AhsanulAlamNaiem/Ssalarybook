@@ -1,4 +1,5 @@
 import 'package:beton_book/services/api_services.dart';
+import 'package:beton_book/sign_up_page.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:beton_book/services/appResources.dart';
@@ -150,6 +151,7 @@ class _LogInPageState extends State<LogInPage> {
                         },
                         child: Text(
                           "Login", style: TextStyle(color: Colors.white),)),
+                    TextButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUpPage())), child: Text("Send Sign Up request?"))
 
                     // ElevatedButton(
                     //     style: AppStyles.elevatedButtonStyle,
