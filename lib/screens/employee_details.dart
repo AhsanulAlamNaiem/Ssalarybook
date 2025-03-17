@@ -145,7 +145,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                         ))),
                 SizedBox(height: 0),
                 // Table for employee details
-                (lstAttendanceLog==null) || (employee == null)? Center(child: CircularProgressIndicator()) :
+                (lstAttendanceLog==null) || (employee == null)? AppWidgets.tableLoadingIndicator :
                 Container(
 
                   child: Table(

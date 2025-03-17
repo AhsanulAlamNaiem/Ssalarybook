@@ -129,7 +129,7 @@ class _LogInPageState extends State<LogInPage> {
                       // Checkbox position
                     ),
                     isLoading
-                        ? CircularProgressIndicator()
+                        ? AppWidgets.progressIndicator
                         : ElevatedButton(
                         style: AppStyles.elevatedButtonStyleFullWidth,
                         onPressed: () {

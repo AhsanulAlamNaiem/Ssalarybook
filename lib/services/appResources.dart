@@ -24,9 +24,9 @@ class AppFonts {
 class AppStyles {
   // Text Styles
   static const TextStyle textOnMainColorheading = TextStyle(
-  fontSize: 20.0,
-  fontWeight: FontWeight.bold,
-  color: AppColors.textColorOnMainColor,
+    fontSize: 20.0,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textColorOnMainColor,
   );
 
   static const TextStyle textH1 = TextStyle(
@@ -36,9 +36,9 @@ class AppStyles {
   );
 
   static const TextStyle textH2 = TextStyle(
-  fontSize: 16.0,
-  color: Colors.black,
-    fontWeight: FontWeight.bold
+      fontSize: 16.0,
+      color: Colors.black,
+      fontWeight: FontWeight.bold
   );
 
   static const TextStyle textH2w = TextStyle(
@@ -82,24 +82,24 @@ class AppStyles {
   );
 
   static const TextStyle buttonText = TextStyle(
-  fontSize: 16.0,
-  fontWeight: FontWeight.w500,
-  color: AppColors.textColorOnMainColor,
+    fontSize: 16.0,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textColorOnMainColor,
   );
 
   static ButtonStyle  textButtonWhite = TextButton.styleFrom(
-    textStyle: textH4
+      textStyle: textH4
   );
 
   // Button Styles
   static ButtonStyle elevatedButtonStyleFullWidth = ElevatedButton.styleFrom(
-  backgroundColor: AppColors.mainColor,
-  textStyle: buttonText,
-  shape: RoundedRectangleBorder(
-  borderRadius: BorderRadius.all(Radius.circular(8.0)),
-  ),
+    backgroundColor: AppColors.mainColor,
+    textStyle: buttonText,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+    ),
   ).copyWith(
-  minimumSize: MaterialStateProperty.all(Size(double.infinity, 40)), // Set minimum width to full screen width
+    minimumSize: MaterialStateProperty.all(Size(double.infinity, 40)), // Set minimum width to full screen width
   );
 
   static ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(
@@ -114,7 +114,7 @@ class AppStyles {
     shadowColor: Colors.grey.withOpacity(0.4), // Light ash shadow
     elevation: 6, // Shadow elevation
     shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+      borderRadius: BorderRadius.circular(15),
     ),
   ).copyWith(
     minimumSize: MaterialStateProperty.all(Size(double.infinity, 80)), // Set minimum width to full screen width
@@ -144,6 +144,41 @@ class AppMachineStatus{
   static const String maintenance = "maintenance";
 }
 
+class AppWidgets{
+  static Widget progressIndicator = ElevatedButton(
+    style: AppStyles.elevatedButtonStyleFullWidth,
+    onPressed: () {},
+    child: SizedBox(
+      height: 25,
+      width: 25,
+      child: CircularProgressIndicator(color: Colors.white),
+    ),
+  );
+
+  static Widget tableLoadingIndicator = Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Column(
+      children: [
+        Container( decoration: BoxDecoration(
+          color: AppColors.mainColor,
+          border: Border.all(color: Colors.black, width: 0),
+          borderRadius: BorderRadius.circular(0),
+        ),
+          height: 30,
+          width: double.infinity,),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.mainColor, width: 1),
+            borderRadius: BorderRadius.circular(0),
+          ),
+          width: double.infinity,
+          height: 50,
+          child: SizedBox( height: 25,width: 25, child:  Text("Fetching data ...")),
+        ),
+      ],
+    ),
+  );
+}
 
 
 PreferredSize customAppBar({required String title, List<Widget>? action = null , Widget? leading = null}) {
@@ -186,25 +221,25 @@ PreferredSize homeScreenAppBar({required User user, List<Widget>? action = null 
             actions: action,
           ),
             Container(
-              height:200,
-              width: double.infinity,
-              decoration: BoxDecoration(color: AppColors.mainColor),
+                height:200,
+                width: double.infinity,
+                decoration: BoxDecoration(color: AppColors.mainColor),
                 child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                      width: 130, // Diameter = 2 * radius
-                      height: 130,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage("assets/images/user.png"),
-                          fit: BoxFit.fitHeight, // Ensures the image fits properly
-                        ),)),
-                  Text(user.name, style: AppStyles.textOnMainColorheading,),
-                  Text(user.designation, style: AppStyles.textH3w,),
-                  SizedBox(height: 20,)
-                ]
-            ))
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                          width: 130, // Diameter = 2 * radius
+                          height: 130,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage("assets/images/user.png"),
+                              fit: BoxFit.fitHeight, // Ensures the image fits properly
+                            ),)),
+                      Text(user.name, style: AppStyles.textOnMainColorheading,),
+                      Text(user.designation, style: AppStyles.textH3w,),
+                      SizedBox(height: 20,)
+                    ]
+                ))
           ]
           )
       )
@@ -387,3 +422,5 @@ class Location {
     };
   }
 }
+
+

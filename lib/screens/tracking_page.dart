@@ -83,7 +83,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
               //   print(data);
               // }, child: Text("read")),
-              isLoading?CircularProgressIndicator(): ElevatedButton(
+              isLoading?AppWidgets.progressIndicator: ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
                 onPressed: isGettingLocation? null:() async{
 
