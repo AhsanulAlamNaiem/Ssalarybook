@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
-    user.permissionGroups.add("Admin");
+    // user.permissionGroups.add("Admin");
     final designation = user.designation;
 
     final List<Widget> pages = [

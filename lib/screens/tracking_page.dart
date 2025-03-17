@@ -30,6 +30,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   bool canPunchIn = false;
   bool didPunchIn = false;
   bool isLoading = false;
+  bool isClickable = true;
   Map<String, String>?  authHeaders;
 
   @override
@@ -79,16 +80,16 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               ]
               ),
               // Text(""),
-              ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
+              // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
               // ElevatedButton(onPressed: ()=>_loadAttendance(), child: Text("load")),
-              ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
+              // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
               // ElevatedButton(onPressed: ()async{
               //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
               //   print(data);
               // }, child: Text("read")),
               isLoading || isGettingLocation?AppWidgets.progressIndicator: ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
-                onPressed: isGettingLocation? null:() async{
+                onPressed: isGettingLocation || (!isClickable)? null:() async{
 
                   print(didPunchIn?"Punch Out":"Punch IN");
                   didPunchIn? await _punchOut(): await _punchIn();
@@ -143,11 +144,27 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       setState(() {
         _locationMessage = "Permission Denied";
       });
+      setState(() {
+        isClickable = false;
+        isGettingLocation = false;
+      });
       return;
     }
 
-    position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    try{
+    position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } catch(e){
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      print("Service $serviceEnabled");
+      if(!serviceEnabled){
+        _locationMessage = "Location is Disabled";
+        setState(() {
+          isClickable = false;
+          isGettingLocation = false;
+        });
+      }
+      return;
+    }
 
 
     if(position!=null){
