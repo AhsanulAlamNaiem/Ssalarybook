@@ -1,4 +1,5 @@
 import 'package:beton_book/screens/Employees_list_page.dart';
+import 'package:beton_book/screens/signup_requests_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -138,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextButton(onPressed: (){}, child: Text("Remote Employees", style: AppStyles.textH2,)),
-                          TextButton(onPressed: (){}, child: Text("Sign Up Requests", style: AppStyles.textH2,)),
+                          user.permissionGroups.contains("Admin")?TextButton(onPressed: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupRequestsPage()));
+                          }, child: Text("Sign Up Requests", style: AppStyles.textH2,)):SizedBox(height: 0,),
                           TextButton(onPressed: (){}, child: Text("Subscriptions",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Contact Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),

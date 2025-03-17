@@ -69,7 +69,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                     Text("Current Location", style: AppStyles.textH1),
                     IconButton(onPressed: (){_getCurrentLocation();}, icon: Icon(Icons.refresh))
                   ], children: isGettingLocation?
-              [CircularProgressIndicator()]:
+              [Column(children: [
+                // CircularProgressIndicator(),
+                Text("Getting current Location .. .")
+              ],)]:
               [
                 Text(_locationMessage, style: AppStyles.textH3,),
                 // Text("\nDistance From Office:\n${double.parse(distance.toStringAsFixed(2))} Metre", style: AppStyles.textH3,),
@@ -83,7 +86,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
               //   print(data);
               // }, child: Text("read")),
-              isLoading?AppWidgets.progressIndicator: ElevatedButton(
+              isLoading || isGettingLocation?AppWidgets.progressIndicator: ElevatedButton(
                 style: AppStyles.elevatedButtonStyleFullWidth,
                 onPressed: isGettingLocation? null:() async{
 
