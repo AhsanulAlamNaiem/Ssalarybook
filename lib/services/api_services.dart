@@ -9,6 +9,7 @@ class ApiService{
   final storage = FlutterSecureStorage();
   static Map<String, String> authHeaders = {};
   static String message = "";
+  static int employeeIid = 0;
 
   Future<bool> tryLogIn({required String email, required String password}) async {
     final url = Uri.parse(AppApis.login);
@@ -25,6 +26,8 @@ class ApiService{
       final cookies = response.headers['set-cookie']!.split(";");
       final cookie = "${cookies[0]}; ${cookies[4].split(",")[1]}";
       authHeaders = {"cookie": cookie, "Authorization": "Token $token"};
+      employeeIid = data['data']['employee_id'];
+      print(employeeIid);
       await storage.write(key: AppSecuredKey.authHeaders, value: jsonEncode(headers));
       return true;
     } else{
@@ -33,22 +36,19 @@ class ApiService{
   }
 
   Future<User?> fetchUserInfoFunction() async {
-    final employeeUrl = Uri.parse(AppApis.employeeDetails);
+    final employeeUrl = Uri.parse("${AppApis.employeeDetails}$employeeIid/");
+    print(employeeUrl);
     final response = await http.get(employeeUrl, headers: authHeaders);
-    print("auth ${authHeaders}");
     print("Info Resp ${response.body}");
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseJson = jsonDecode(response.body).cast<String,dynamic>();
       User user = User.fromJson(responseJson);
-
       final companyUrl = "${AppApis.company}${user.company}/";
       final companyResponse = await http.get(Uri.parse(companyUrl));
       print(companyResponse.body);
       if (companyResponse.statusCode == 200) {
         final companyResponseJson = jsonDecode(companyResponse.body);
-        // final double latitude = 24.9180;
-        // final double longitude = 91.8376;
         final branches = companyResponseJson['branches'] as List<dynamic>;
         print(branches);
         final List<Location>companyLocations = branches.map((branch) => Location.fromJson(branch)).toList().cast<Location>();
