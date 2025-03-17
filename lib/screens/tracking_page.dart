@@ -79,9 +79,9 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               ]
               ),
               // Text(""),
-              // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
+              ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
               // ElevatedButton(onPressed: ()=>_loadAttendance(), child: Text("load")),
-              // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
+              ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
               // ElevatedButton(onPressed: ()async{
               //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
               //   print(data);
@@ -174,19 +174,16 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     });
 
     final user = context.read<AppProvider>().user!;
-    print(user.locations[0].longitude);
-    print(user.locations[0].latitude);
+    print("User Locaton:");
+    user.locations.forEach((loc)=>print("${loc.longitude} - ${loc.latitude} - ${loc.branch_id}"));
 
     final url = Uri.parse(AppApis.punchIn);
     final body = jsonEncode(
         {
-          // "entry_latitude": "${position!.latitude}",
-          "entry_latitude": "${user.locations[0].latitude}",
-          // "entry_longitude": "${position!.longitude}",
-          "entry_longitude": "${user.locations[0].longitude}"
+          "entry_latitude": "${position!.latitude}",
+          "entry_longitude": "${position!.longitude}",
         }
     );
-
     print(body);
     Map<String, String> headers = authHeaders!;
     headers['Content-Type'] = 'application/json';
@@ -237,17 +234,11 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       isLoading = true;
     });
 
-    final user = context.read<AppProvider>().user!;
-    print(user.locations[0].longitude);
-    print(user.locations[0].latitude);
-
     final url = Uri.parse(AppApis.punchOut);
     final body = jsonEncode(
         {
-          // "exit_latitude": "${position!.latitude}",
-          "exit_latitude": "${user.locations[0].latitude}",
-          // "exit_longitude": "${position!.longitude}",
-          "exit_longitude": "${user.locations[0].longitude}"
+          "exit_latitude": "${position!.latitude}",
+          "exit_longitude": "${position!.longitude}",
         }
     );
 

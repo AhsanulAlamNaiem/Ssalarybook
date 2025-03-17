@@ -31,10 +31,57 @@ class _SignUpPageState extends State<SignUpPage> {
   bool isLoading = false;
   final storage = FlutterSecureStorage();
   bool willSavePassword = true;
-
-
   final TextEditingController passwordController = TextEditingController();
-  bool _obscurePassword = true; // This controls password visibility
+  bool _obscurePassword = true;
+  List? companiesData;
+  List<String> companies= [];
+  List<String> departments= [];
+  List<String> designations= [];
+  List<String> branches= [];
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    _loadCompanies();
+
+
+  }
+  _loadCompanies() async {
+    setState(() {
+      isLoading = true;
+    });
+    final fetchedCompnayData = await ApiService().fetchCompaniesData();
+    companiesData = fetchedCompnayData??[];
+    final extractCompanies = companiesData!.map((company)=>company["name"]).toList().cast<String>();
+    companies.addAll(extractCompanies);
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  _selectionChnanges({required String selectedCompany}){
+    print("selectedCompany: $selectedCompany");
+    final selectedCompanyObject = companiesData!.firstWhere((company){
+      final name = company["name"];
+      print("name: $name ${name==selectedCompany}");
+      return  name==selectedCompany;
+    });
+    print(selectedCompanyObject['name']);
+    final extractDepartments = selectedCompanyObject["departments"].map((company)=>company["name"]).toList().cast<String>();
+    final extractDesignations = selectedCompanyObject["designations"].map((company)=>company["title"]).toList().cast<String>();
+    final extractbranches = selectedCompanyObject["branches"].map((company)=>company["name"]).toList().cast<String>();
+
+
+    departments.addAll(extractDepartments);
+    designations.addAll(extractDesignations);
+    branches.addAll(extractbranches);
+    setState(() {
+
+    });
+  }
+
   void showError(String message) {
     showDialog(
         context: context,
@@ -48,6 +95,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ],
             ));
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,14 +130,15 @@ class _SignUpPageState extends State<SignUpPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      CustomTextField(label: "Firs Name", updater: (value)=> lastName = value),
+                      CustomTextField(label: "Firs Name", updater: (value)=> firstName = value),
                       CustomTextField(label: "Last Name", updater: (value)=> lastName = value),
-                      CustomTextField(label: "Gender", updater: (value)=> lastName = value),
                       CustomDropDown(label: "Gender", items: ["Male", "Female", "Third Gender"], updater: (value)=>gender = value),
-                      CustomTextField(label: "Company", updater: (value)=> lastName = value),
-                      CustomTextField(label: "Department", updater: (value)=> lastName = value),
-                      CustomTextField(label: "Designation", updater: (value)=> lastName = value),
-                      CustomTextField(label: "Branch", updater: (value)=> lastName = value),
+                      CustomDropDown(label: "Company", items: companies, isLoading: isLoading , updater: (value){
+                        company = value;
+                      _selectionChnanges(selectedCompany: company);}),
+                      CustomDropDown(label: "Department", items: departments, updater: (value)=>department = value),
+                      CustomDropDown(label: "Designation", items: designations, updater: (value)=>designation = value),
+                      CustomDropDown(label: "Branch", items: branches, updater: (value)=>branch = value),
                       TextFormField(
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
@@ -142,15 +191,25 @@ class _SignUpPageState extends State<SignUpPage> {
 
 
                       isLoading
-                          ? CircularProgressIndicator()
+                          ? AppWidgets.progressIndicator
                           : ElevatedButton(
                           style: AppStyles.elevatedButtonStyleFullWidth,
                           onPressed: () {
-                            if (password == "" || email == "") {
+                            if (password == "" ||
+                                email == "" ||
+                                firstName == "" ||
+                                lastName == "" ||
+                                gender == "" ||
+                                company == "" ||
+                                department == "" ||
+                                designation == "" ||
+                                branch == "" ||
+                                mobile == ""
+                            ) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
-                                      'Email and Password should not be empty'),
+                                      'All fields Should be filled'),
                                   backgroundColor: Colors.red,
                                   duration: Duration(seconds: 3),
                                   shape: RoundedRectangleBorder(
@@ -158,9 +217,9 @@ class _SignUpPageState extends State<SignUpPage> {
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
-                              return;
-                            }
+                            } else{
                             sendSignUpRequest();
+                            }
                           },
                           child: Text(
                             "Send Sign Up Request", style: TextStyle(color: Colors.white),)),
@@ -180,8 +239,19 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> sendSignUpRequest() async {
     setState(() {
-      isLoading = true;
+      // isLoading = true;
     });
+        print(password);
+        print(email);
+        print(firstName);
+        print(lastName);
+        print(gender);
+        print(company);
+        print(department);
+        print(designation);
+        print(branch);
+        print(mobile);
+        return;
 
     final isLoggedIn = await ApiService().tryLogIn(
         email: email, password: password);
@@ -231,28 +301,12 @@ class _SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  Widget CustomDropDown({required String label,required List<String> items,required Function updater}){
-    return   DropdownButton<String>(
-      hint: Text("Select Gender"),
-      items: items.map((String gender) {
-        return DropdownMenuItem<String>(
-          value: gender,
-          child: Text(gender),
-        );
-      }).toList(),
-      onChanged: (String? newValue) {
-        setState(() {
-          updater(newValue);
-        });
-      },
-    );
-  }
+
 }
 
 class CustomTextField extends StatelessWidget{
   final String label;
   final Function updater;
-
 
   const CustomTextField({super.key, required this.label,required this.updater});
 
@@ -270,3 +324,54 @@ class CustomTextField extends StatelessWidget{
   }
 }
 
+class CustomDropDown extends StatefulWidget{
+  String label;
+  List<String> items;
+  Function updater;
+  bool isLoading;
+  CustomDropDown({required this.label,required this.items,required this.updater,this.isLoading=false});
+
+  @override
+  _DropDownState createState() => _DropDownState();
+}
+
+class _DropDownState extends State<CustomDropDown> {
+  String? selectedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(5), // Rounded corners
+          border: Border.all(
+              color: AppColors.fontColorGray, width: 1), // Border styling
+        ),
+        child: widget.items==[]? CircularProgressIndicator():
+        DropdownButton<String>(
+          value: selectedItem,
+          // style: AppStyles.textH2,
+          hint: widget.isLoading?
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+            Text("Select ${widget.label}"),
+              SizedBox(height: 10,width: 10,child: CircularProgressIndicator(color: AppColors.fontColorGray,))],):
+          Text("Select ${widget.label}"),
+          items: widget.items.map((String gender) {
+            return DropdownMenuItem<String>(
+              value: gender,
+              child: Text(gender),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            setState(() {
+              selectedItem = newValue;
+              widget.updater(newValue);
+            });
+          },
+        ));
+  }
+}

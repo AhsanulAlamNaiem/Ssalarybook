@@ -44,9 +44,13 @@ class ApiService{
     if (response.statusCode == 200) {
       Map<String, dynamic> responseJson = jsonDecode(response.body).cast<String,dynamic>();
       User user = User.fromJson(responseJson);
+      print("user");
+      print(user.name);
       final companyUrl = "${AppApis.company}${user.company}/";
+      print(companyUrl);
       final companyResponse = await http.get(Uri.parse(companyUrl));
-      print(companyResponse.body);
+      print("Company response ${companyResponse.statusCode} ${companyResponse.body}");
+
       if (companyResponse.statusCode == 200) {
         final companyResponseJson = jsonDecode(companyResponse.body);
         final branches = companyResponseJson['branches'] as List<dynamic>;
@@ -78,5 +82,14 @@ class ApiService{
       }
     }
   }
+
+  Future<List?> fetchCompaniesData() async {
+      final companyUrl = Uri.parse(AppApis.company);
+      final companyResponse = await http.get(companyUrl);
+      print("Company Response: ${companyResponse.body}");
+      if (companyResponse.statusCode == 200) {
+        final companyResponseJson = jsonDecode(companyResponse.body);
+        return companyResponseJson;
+      }}
 }
 

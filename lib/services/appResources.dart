@@ -371,8 +371,10 @@ class User extends Employee {
   );
 
   factory User.fromJson(Map<String, dynamic> json) {
-    final locationsListOfObject = json["locations"]??[{"longitude":0.0000,"latitude":0.0000,"address":"Not a company location"}];
-    final locationsListOfLocations = locationsListOfObject.map((json){return Location(longitude: json["longitude"], latitude: json["latitude"], address: json["address"]);}).toList().cast<Location>();
+    final locationsListOfObject = json["locations"]??[{"longitude":0.0000,"latitude":0.0000,"id":"Not a company location"}];
+    final locationsListOfLocations = locationsListOfObject.map((json){
+      print(json);
+      return Location(longitude: json["longitude"], latitude: json["latitude"], branch_id: json["id"]);}).toList().cast<Location>();
 
     return User(
       id: json['id'],
@@ -401,16 +403,16 @@ class User extends Employee {
 class Location {
   final double longitude;
   final double latitude;
-  final String address;
+  final String branch_id;
 
-  Location({required this.longitude, required this.latitude,required this.address});
+  Location({required this.longitude, required this.latitude,required this.branch_id});
 
   factory Location.fromJson(Map<String, dynamic> json) {
-    print(json);
+    print(json["naiem"]);
     return Location(
       longitude: double.parse("${json['longitude']?? 0.0}"),
       latitude: double.parse("${json['latitude'] ?? 0.0}"),
-      address: json['address'].toString(),
+      branch_id: json['id'].toString(),
     );
   }
 
@@ -418,7 +420,7 @@ class Location {
     return {
       'longitude': longitude,
       'latitude': latitude,
-      'address': address,
+      'branch_id': branch_id,
     };
   }
 }
