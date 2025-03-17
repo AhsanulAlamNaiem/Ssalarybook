@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AppProvider extends ChangeNotifier{
   User? user;
 
-  updateEmployee({required User newUser}){
+  updateUser({required User newUser}){
     user = newUser;
   }
 }

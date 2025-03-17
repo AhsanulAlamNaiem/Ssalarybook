@@ -80,7 +80,7 @@ class _SPlashScreenState extends State<SplashScreen> {
       User user = User.fromJson(jsonDecode(strUser));
       print("branches: ${user.locations[0].longitude}");
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<AppProvider>().updateEmployee(newUser: user);
+        context.read<AppProvider>().updateUser(newUser: user);
       });
       print("${user.permissionGroups} ${user.designation}");
 

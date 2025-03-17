@@ -46,14 +46,13 @@ class _TimeTrackerPageState extends State<TimeTracker> {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Column(children: [
-                Text("Saturday, 23 January", style: AppStyles.textH1),
-                Text("Start Time: 8:57 AM", style: AppStyles.textH1),
+                Text(DateFormat("EEEE, d MMMM").format(DateTime.now()), style: AppStyles.textH1),
+                // Text("Start Time: 8:57 AM", style: AppStyles.textH1),
               ],),
-              Text(""),
               // _cardBuilder(
               //     children: [
               //       Text("HH:MM:SS", style: TextStyle(fontSize: 16)),
@@ -73,7 +72,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
               [CircularProgressIndicator()]:
               [
                 Text(_locationMessage, style: AppStyles.textH3,),
-                Text("\nDistance From Office:\n${double.parse(distance.toStringAsFixed(2))} Metre", style: AppStyles.textH3,),
+                // Text("\nDistance From Office:\n${double.parse(distance.toStringAsFixed(2))} Metre", style: AppStyles.textH3,),
               ]
               ),
               // Text(""),
@@ -102,32 +101,32 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
 
   Widget _cardBuilder({List<Widget>? heading, required List<Widget> children}) {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          heading!=null? Row( children: heading):Text(""),
-          Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: const BorderSide(color: Colors.grey),),
-            elevation: 0,
-            color: Colors.transparent,
-
-            child: Container(
-              constraints: BoxConstraints(
-                minHeight: 140.0, // Set your desired minimum height
-              ),
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child:
-                Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: children),
-              ),
-            ),
-          )
-        ]);
+    return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.grey),
+        ),
+        elevation: 0,
+        color: Colors.transparent,
+        child: Container(
+          constraints: BoxConstraints(
+            minHeight: 140.0, // Set your desired minimum height
+          ),
+          width: double.infinity,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  heading!=null? Row( crossAxisAlignment: CrossAxisAlignment.center, children: heading):Text(""),
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: children),
+                ]),
+          ),
+        )
+    );
   }
 
   Future<void> _getCurrentLocation() async {
@@ -164,7 +163,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
         if (distance < 100) canPunchIn = true;
       });
     }
-    }
+  }
   // punch in >>>>>>>>>>>>>>>>>>>>>>>
   Future<void> _punchIn() async{
     setState(() {
@@ -209,21 +208,21 @@ class _TimeTrackerPageState extends State<TimeTracker> {
         ),
       );
       setState(() {
-      didPunchIn=true;
+        didPunchIn=true;
       });
     } else if (response.statusCode ==400){
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
 
       ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              behavior: SnackBarBehavior.floating,
-            ),
-          );
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
     setState(() {
       isLoading = false;
@@ -239,7 +238,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(user.locations[0].longitude);
     print(user.locations[0].latitude);
 
-     final url = Uri.parse(AppApis.punchOut);
+    final url = Uri.parse(AppApis.punchOut);
     final body = jsonEncode(
         {
           // "exit_latitude": "${position!.latitude}",
@@ -271,7 +270,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       );
       await storage.delete(key: AppSecuredKey.didPunchIn);
       setState(() {
-      didPunchIn=false;
+        didPunchIn=false;
       });
     } else if (response.statusCode ==400){
       final responseJson = jsonDecode(response.body);
@@ -308,14 +307,16 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     final attendanceJson = jsonDecode(response.body);
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
-      var maxIdObject = attendanceJson.reduce((curr, next) => curr['id'] > next['id'] ? curr : next);
-    print(maxIdObject);
-    didPunchIn = maxIdObject["time_out"] == null;
-    print(didPunchIn);
-    setState(() {
 
-    });
-    }
+      if(attendanceJson.length==0){
+        didPunchIn = false;
+      } else {
+        var maxIdObject = attendanceJson.reduce((curr, next) =>
+        curr['id'] > next['id'] ? curr : next);
+        print("Last Attendence id: $maxIdObject");
+        didPunchIn = maxIdObject["time_out"] == null;
+      }}
+    print(didPunchIn);
     setState(() {
       isLoading = false;
     });
@@ -326,7 +327,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print("token $token");
     final tokenjson = jsonDecode(token!);
     authHeaders = {"cookie": tokenjson['cookie'],
-    "Authorization":  tokenjson['Authorization']
-      };
+      "Authorization":  tokenjson['Authorization']
+    };
   }
 }

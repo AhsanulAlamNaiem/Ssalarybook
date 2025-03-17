@@ -196,6 +196,8 @@ class _LogInPageState extends State<LogInPage> {
           storage.write(key: AppSecuredKey.userObject,
               value: jsonEncode(userWithAllInfo.toJson()));
 
+          context.read<AppProvider>().updateUser(newUser: userWithAllInfo);
+          
           showDialog(
               context: context,
               builder: (context) =>
