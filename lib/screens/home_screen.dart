@@ -34,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final user = widget.user;
+    user.permissionGroups.add("Admin");
     final designation = user.designation;
 
     final List<Widget> pages = [
@@ -140,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           TextButton(onPressed: (){}, child: Text("Remote Employees", style: AppStyles.textH2,)),
                           user.permissionGroups.contains("Admin")?TextButton(onPressed: (){
+                            Navigator.pop(context);
                             Navigator.push(context, MaterialPageRoute(builder: (context)=>SignupRequestsPage()));
                           }, child: Text("Sign Up Requests", style: AppStyles.textH2,)):SizedBox(height: 0,),
                           TextButton(onPressed: (){}, child: Text("Subscriptions",  style: AppStyles.textH3)),

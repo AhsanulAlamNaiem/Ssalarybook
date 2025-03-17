@@ -24,11 +24,11 @@ class _LogsPageState extends State<LogsPage> {
   void _loadAttendance() async{
     final response = await http.get(Uri.parse(AppApis.attendanceLog));
     final attendanceJson = jsonDecode(response.body);
-
+    print("All Attendence ${attendanceJson}");
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
-      setState(() {
         lstAttendanceLog = attendanceList;
+      setState(() {
       });
     }
   }
@@ -58,7 +58,6 @@ class _LogsPageState extends State<LogsPage> {
         return emp;
       }).toList().cast<Employee>();
 
-
       setState(() {
         lstEmployee = mergedList;
       });
@@ -77,12 +76,6 @@ class _LogsPageState extends State<LogsPage> {
     if (picked != selectedDate) {
       setState(() {
         selectedDate = picked!;
-        // filteredAttendanceLog = lstAttendanceLog;
-        filteredAttendanceLog = lstAttendanceLog.where((attendence){
-          print("Selected Date:${selectedDate}");
-          print("Employee Date: ${attendence.date}");
-          return selectedDate==attendence.date;}).toList();
-        print(filteredAttendanceLog);
       });
     }
   }
@@ -102,7 +95,11 @@ class _LogsPageState extends State<LogsPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    String formattedDate = DateFormat('EEEE, dd MMMM').format(selectedDate);
+    String formattedSelectedDate = DateFormat('EEEE, dd MMMM').format(selectedDate);
+    filteredAttendanceLog = lstAttendanceLog.where((attendence){
+      print("Selected Date:${selectedDate}");
+      print("Employee Date: ${attendence.date}");
+      return formattedSelectedDate== DateFormat('EEEE, dd MMMM').format(attendence.date);}).toList();
     return lstAttendanceLog.isEmpty? Center(child: CircularProgressIndicator()) : Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -118,7 +115,7 @@ class _LogsPageState extends State<LogsPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                          formattedDate,
+                          formattedSelectedDate,
                           style: AppStyles.textH2w
                       ),
                       IconButton(

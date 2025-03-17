@@ -78,51 +78,96 @@ class _SignupRequestsPageState extends State<SignupRequestsPage> {
           // ],
         ),
         body: lstRequests.isEmpty
-        ? Center( child: CircularProgressIndicator())
-        : ListView.builder(
-      itemCount: lstRequests.length,
-      itemBuilder: (context, index) {
-        final employee = lstRequests[index];
-        return Container( margin: EdgeInsets.fromLTRB(10,2,2,10), child: Card(
-          child: ListTile(
-            title:
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(employee.id.toString() + ") " + employee.name, style: AppStyles.textH2,),
-                  Text(employee.company, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.mainColor)),
-                  Text(employee.designation, style: AppStyles.textH3),
-                  SizedBox(height: 8,),
-                  Container(
-
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("phone: ${employee.phone}",style: TextStyle(fontSize: 13, color: AppColors.fontColorGray) ),
-                      IconButton(onPressed: () async{
-                        final Uri url = Uri.parse("tel:${employee.phone}");
-                        if(await launchUrl(url)){
-                        } else{
-                          print("not a phone number");
-                        }
-                      }, icon: Icon(Icons.phone, color: AppColors.fontColorGray, size: 18,))],)),
-                  Container(
-
-                      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("mail: ${employee.email}", style: TextStyle(fontSize: 13, color: AppColors.fontColorGray)),
-                      IconButton(onPressed: () async{
-                        final url = Uri( scheme: 'mailto', path:employee.email);
-                        if(await launchUrl(url)){
-                        }else{
-                          print("not email");
-                        }},
-                          icon: Icon(Icons.mail, color: AppColors.fontColorGray, size: 18))],)),
-                ]),
-            onTap: () => _navigateToDetailedEmployeePage(context, employee),
-          ),
+            ? Center( child: CircularProgressIndicator())
+            : ListView.builder(
+          itemCount: lstRequests.length,
+          itemBuilder: (context, index) {
+            final requestedEmployee = lstRequests[index];
+            return Container( margin: EdgeInsets.fromLTRB(10,2,2,10),
+              child: GestureDetector(
+                child: ApprovalCard(
+                    id: requestedEmployee.id,
+                    name: requestedEmployee.name,
+                    department: requestedEmployee.department,
+                    designation: requestedEmployee.designation,
+                    email: requestedEmployee.email,
+                    phone: requestedEmployee.phone),
+                onTap: () {},
+              ),
+            );
+          },
         ));
-      },
-    ));
+  }
+}
+
+
+class ApprovalCard extends StatelessWidget {
+  final int id;
+  final String name;
+  final String designation;
+  final String department;
+  final String email;
+  final String phone;
+
+  const ApprovalCard({
+    Key? key,
+    required this.id,
+    required this.name,
+    required this.designation,
+    required this.department,
+    required this.email,
+    required this.phone,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      elevation: 4,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text(designation, style: const TextStyle(color: Colors.grey)),
+                    Text(department, style: const TextStyle(color: Colors.grey)),
+                    Text("Phone $phone", style: const TextStyle(color: Colors.grey)),
+                    Text("Email: $email", style: const TextStyle(color: Colors.grey)),
+                  ])),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.mainColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(8.0)),
+                    ),
+                  ).copyWith(
+                    minimumSize: MaterialStateProperty.all(Size((MediaQuery.of(context).size.width-20) / 2, 40)), // Set minimum width to full screen width
+                  ),
+                  child: const Text('Approve',style: AppStyles.textH2w),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(bottomRight:  Radius.circular(8.0)),
+                    ),
+                  ).copyWith(
+                    minimumSize: MaterialStateProperty.all(Size((MediaQuery.of(context).size.width-20) / 2, 40)), // Set minimum width to full screen width
+                  ),
+                  child: const Text('Reject',style: AppStyles.textH2w,),
+                )])
+        ],
+      ),
+    );
   }
 }

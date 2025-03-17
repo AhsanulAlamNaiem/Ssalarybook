@@ -17,7 +17,7 @@ class ApiService{
 
     final headers = {'Content-Type': 'application/json'};
     final response = await http.post(url, body: body, headers: headers);
-    print("${response.statusCode} ${response.body}");
+    print("TryLogin: ${response.statusCode} ${response.body}");
     message = jsonDecode(response.body)["message"];
 
     if (response.statusCode == 200) {
@@ -72,7 +72,7 @@ class ApiService{
       print("Machine Permission: ${responseJson}");
 
       if(user!=null) {
-        user.permissionGroups = responseJson["group-name"];;
+        user.permissionGroups = responseJson["group-name"];
         user.designation = responseJson["designation"];
         user.department = responseJson["department"];
         user.company = responseJson["company"];

@@ -52,9 +52,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
-      setState(() {
       lstAttendanceLog = attendanceList;
-      });
       print(lstAttendanceLog!.length);
       print("attendencelog");
     }else{
@@ -87,6 +85,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     print(filteredAttendanceLog.length);
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
+    final lateDays =  filteredAttendanceLog.where((att){return att.status=="Late";}).toList();
 
     return SingleChildScrollView( child:  Column( children: [
           Container(
@@ -120,8 +119,8 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 15,),
-                Text("Total Absent: 1 day", style: AppStyles.textH2,),
-                Text("Total Late: 1 day", style: AppStyles.textH2,),
+                // Text("Total Absent: 1 day", style: AppStyles.textH2,),
+                Text("Total Late: ${lateDays.length} days", style: AppStyles.textH2,),
                 Text("Salary: *,***.** BDT", style: AppStyles.textH2,),
                 SizedBox(height: 15,),
                 // Display the selected date

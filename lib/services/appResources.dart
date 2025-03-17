@@ -272,7 +272,7 @@ class Attendance {
     // print(json);
     // print("from model: ${json['id']}");
 
-    DateTime timeIn = DateTime.parse(json['time_in']);
+    DateTime timeIn = DateTime.parse(json['time_in']??'1990-01-01');
     DateTime timeOut = DateTime.parse(json['time_out']??'1990-01-01');
     DateTime date = DateTime.parse(json['date']);
 
@@ -321,7 +321,7 @@ class Employee {
       name: "${json['first_name']} ${json['last_name']}",
       company: json["company"].toString(),
       department: json['department'].toString(),
-      phone: json['mobile'],
+      phone: json['mobile'].toString(),
       designation: json['designation'].toString(),
       dateOfJoining: json['date_of_joining'] ?? "",
     );
@@ -420,7 +420,7 @@ class Location {
     return {
       'longitude': longitude,
       'latitude': latitude,
-      'branch_id': branch_id,
+      'id': branch_id,
     };
   }
 }
