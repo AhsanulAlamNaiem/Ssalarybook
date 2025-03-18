@@ -147,7 +147,23 @@ class _LogInPageState extends State<LogInPage> {
                             );
                             return;
                           }
-                          loginFunction();
+                          try {
+                            loginFunction();
+                          } catch(e){
+                            print("error: $e");
+                            setState(() {
+                              isLoading = false;
+                            });
+                            SnackBar(
+                              content: Text(
+                                  'Something went wrong, check internet connection.'),
+                              backgroundColor: Colors.red,
+                              duration: Duration(seconds: 3),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                              behavior: SnackBarBehavior.floating,
+                            );
+                          }
                         },
                         child: Text(
                           "Login", style: TextStyle(color: Colors.white),)),

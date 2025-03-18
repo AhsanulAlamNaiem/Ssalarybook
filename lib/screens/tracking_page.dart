@@ -92,7 +92,15 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                 onPressed: isGettingLocation || (!isClickable)? null:() async{
 
                   print(didPunchIn?"Punch Out":"Punch IN");
-                  didPunchIn? await _punchOut(): await _punchIn();
+                  try {
+                    didPunchIn ? await _punchOut() : await _punchIn();
+                  } catch(e){
+                    setState(() {
+                      isClickable = false;
+                      isLoading = false;
+                    });
+                    AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+                  }
                 },
                 child: Text(
                     didPunchIn? "Punch Out":"Punch In", style: AppStyles.textOnMainColorheading),
@@ -208,6 +216,8 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(headers);
     print(response.body);
     print(response.statusCode);
+
+    try{
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
       print("writing");
@@ -215,15 +225,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       print("written");
 
       final message = data["message"];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppUtility.showToast(message: message);
       setState(() {
         didPunchIn=true;
       });
@@ -231,15 +233,12 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppUtility.showToast(message: message);
+
+    } else{
+      AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+    }} catch(e){
+      AppUtility.showToast(message: "SomeThing Went Wrong! \\$e");
     }
     setState(() {
       isLoading = false;
@@ -262,6 +261,8 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     print(body);
     Map<String, String> headers = authHeaders!;
     headers['Content-Type'] = 'application/json';
+
+    try{
     final response = await http.post(url, body: body, headers: headers);
     print(headers);
     print(response.statusCode  );
@@ -270,15 +271,8 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final message = data["message"];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppUtility.showToast(message: message);
+
       await storage.delete(key: AppSecuredKey.didPunchIn);
       setState(() {
         didPunchIn=false;
@@ -287,15 +281,14 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       final responseJson = jsonDecode(response.body);
       final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 3),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppUtility.showToast(message: message);
+
+    }else{
+      AppUtility.showToast(message: " ${response.statusCode}${response.statusCode==500?" - server Eror":""} - Something Went Wrong");
+
+    }
+    } catch(e){
+      AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
     }
     setState(() {
       isLoading = false;
@@ -313,12 +306,12 @@ class _TimeTrackerPageState extends State<TimeTracker> {
     final user = context.read<AppProvider>().user;
     final url = "${AppApis.attendanceLog}?employee=${user!.id}";
     print(url);
+    try{
     final response = await http.get(Uri.parse(url));
     print(response.body);
     final attendanceJson = jsonDecode(response.body);
     print("${response.statusCode} ${response.body}");
     if(response.statusCode==200){
-
       if(attendanceJson.length==0){
         didPunchIn = false;
       } else {
@@ -326,7 +319,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
         curr['id'] > next['id'] ? curr : next);
         print("Last Attendence id: $maxIdObject");
         didPunchIn = maxIdObject["time_out"] == null;
-      }}
+      }}} catch(e){
+      isClickable = false;
+      AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+    }
     print(didPunchIn);
     setState(() {
       isLoading = false;

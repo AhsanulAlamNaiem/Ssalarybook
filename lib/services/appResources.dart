@@ -426,3 +426,29 @@ class Location {
 }
 
 
+class AppUtility{
+  static final context =  AppNavigator.navigatorKey.currentContext;
+  static  showToast({required String message, Color color = Colors.black54}){
+    ScaffoldMessenger.of(context!).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+        duration: Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  static  showToastAdvanced({required Widget content, Color color = Colors.white}){
+    ScaffoldMessenger.of(context!).showSnackBar(
+      SnackBar(
+        content: content,
+        backgroundColor: color,
+        duration: Duration(seconds: 3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+}
