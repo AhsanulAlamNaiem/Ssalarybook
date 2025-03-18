@@ -57,7 +57,7 @@ class _LogInPageState extends State<LogInPage> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         SizedBox(height: 26.0),
-                        Text(" PPC salary Book",
+                        Text("PPC salary Book",
                           style: AppStyles.textOnMainColorheading,)
                       ]
                   ),
@@ -200,10 +200,10 @@ class _LogInPageState extends State<LogInPage> {
       isLoading = true;
     });
 
-    final isLoggedIn = await ApiService().tryLogIn(
+    final authHeader = await ApiService().tryLogIn(
         email: email, password: password);
 
-    if (isLoggedIn) {
+    if (authHeader!=null) {
       final user = await ApiService().fetchUserInfoFunction();
       if (user != null) {
         final User userWithAllInfo = await ApiService().fetchUserPermissions(user: user);

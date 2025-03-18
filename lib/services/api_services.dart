@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'appResources.dart';
+import 'app_provider.dart';
 
 class ApiService{
   final storage = FlutterSecureStorage();
@@ -11,7 +12,7 @@ class ApiService{
   static String message = "";
   static int employeeIid = 0;
 
-  Future<bool> tryLogIn({required String email, required String password}) async {
+  Future<Map?> tryLogIn({required String email, required String password}) async {
     final url = Uri.parse(AppApis.login);
     final body = jsonEncode({"email": email, "password": password});
 
@@ -27,11 +28,9 @@ class ApiService{
       final cookie = "${cookies[0]}; ${cookies[4].split(",")[1]}";
       authHeaders = {"cookie": cookie, "Authorization": "Token $token"};
       employeeIid = data['data']['employee_id'];
-      print(employeeIid);
-      await storage.write(key: AppSecuredKey.authHeaders, value: jsonEncode(headers));
-      return true;
-    } else{
-      return false;
+      print("Writing Headers: $authHeaders");
+      await storage.write(key: AppSecuredKey.authHeaders, value: jsonEncode(authHeaders));
+      return authHeaders;
     }
   }
 

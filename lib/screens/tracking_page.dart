@@ -236,6 +236,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
       AppUtility.showToast(message: message);
 
     } else{
+      print("response: ${response.statusCode} ${response.body}");
       AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
     }} catch(e){
       AppUtility.showToast(message: "SomeThing Went Wrong! \\$e");
@@ -330,11 +331,12 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   }
 
   _getAuthHeaders()async{
-    final token = await storage.read(key: AppSecuredKey.token);
-    print("token $token");
-    final tokenjson = jsonDecode(token!);
+    final chachedAuthHeader = await storage.read(key: AppSecuredKey.authHeaders);
+    print("Cached auth Header: $chachedAuthHeader");
+    final tokenjson = jsonDecode(chachedAuthHeader!);
     authHeaders = {"cookie": tokenjson['cookie'],
       "Authorization":  tokenjson['Authorization']
     };
+    print("Auth Header: $authHeaders");
   }
 }

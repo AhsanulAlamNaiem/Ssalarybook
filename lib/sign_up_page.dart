@@ -253,10 +253,10 @@ class _SignUpPageState extends State<SignUpPage> {
         print(mobile);
         return;
 
-    final isLoggedIn = await ApiService().tryLogIn(
+    final authHeader = await ApiService().tryLogIn(
         email: email, password: password);
 
-    if (isLoggedIn) {
+    if (authHeader!=null) {
       final user = await ApiService().fetchUserInfoFunction();
       if (user != null) {
         final User userWithAllInfo = await ApiService().fetchUserPermissions(user: user);
