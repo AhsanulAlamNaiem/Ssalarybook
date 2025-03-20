@@ -6,7 +6,7 @@
 
 
     <application
-        android:label="beton_book"
+        android:label="Workforce 360"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:autofillHints="username, password">
