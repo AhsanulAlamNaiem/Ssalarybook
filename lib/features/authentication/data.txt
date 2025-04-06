@@ -1,0 +1,22 @@
+TryLogin: 200 {"status":"success","message":"Login successful. Redirecting to home.","data":{"token":"aea48c3164773e1510541e24f57e4fa745a6b0e9","user_id":20,"employee_id":17,"redirect_url":"/home/"},"errors":[],"meta":{}}
+I/flutter ( 5996): Writing Headers: {cookie: csrftoken=VdKQuRGLqtLVIEVzIEz4Y85JJDXtm0CE; sessionid=v9dyx477do2eoxez6lfy9nkt8i1iegor, Authorization: Token aea48c3164773e1510541e24f57e4fa745a6b0e9}
+I/flutter ( 5996): https://salary-book.onrender.com/api/usermanagement/employee-list/17/
+I/flutter ( 5996): Info Resp {"id":17,"user":{"id":20,"email":""},"first_name":"Naim","last_name":"Mohammad","gender":null,"department":3,"mobile":null,"designation":4,"branch":9,"employee_id":null,"date_of_joining":null,"company":1}
+I/flutter ( 5996): {longitude: 0.0, latitude: 0.0, id: Not a company location}
+I/flutter ( 5996): user
+I/flutter ( 5996): Naim Mohammad
+I/flutter ( 5996): https://salary-book.onrender.com/api/company/companies/1/
+I/flutter ( 5996): Company response 200 {"id":1,"name":"Panacea Private Consulting Group","industry_type":"Other","about":"","email":"","website":"","established_date":null,"created_at":"2025-03-14","notes":"","departments":[{"id":2,"name":"Consultant","description":"","company_name":"Panacea Private Consulting Group"},{"id":4,"name":"IAM","description":"","company_name":"Panacea Private Consulting Group"},{"id":1,"name":"Management","description":"","company_name":"Panacea Private Consulting Group"},{"id":6,"name":"Manufacturing","description":"","company_name":"Panacea Private Consulting Group"},{"id":5,"name":"Operation Management","description":"","company_name":"Panacea Private Consulting Group"},{"id":3,"name":"Panacea Tech","description":"","company_name":"Panacea Private Consulting Group"}],"designations":[{"id":7,"title":"Assistant Vice President","level":null,"description":"","company_name":"Panacea Private Consulting Group","department_name":"Consultant"},{"id":6,"title":"Program Director","level":null,"description"
+I/flutter ( 5996): [{id: 4, name: Essential Clothing Ltd, description: , company_name: Panacea Private Consulting Group, address: , city: null, state: null, country: Bangladesh, postal_code: null, phone: null, fax: null, contacts: , email: null, latitude: 24.063341900, longitude: 90.314813500, radius: 2000.0, google_maps_link: https://www.google.com/maps?q=24.063341900,90.314813500, full_address: Bangladesh, established_date: null, office_start_time: 08:00:00, office_close_time: 22:00:00, business_hours: null, formatted_business_hours: Not specified}, {id: 1, name: Institute of Apparel Management - IAM, description: , company_name: Panacea Private Consulting Group, address: , city: Chittagong, state: null, country: Bangladesh, postal_code: null, phone: null, fax: null, contacts: , email: null, latitude: 22.361372000, longitude: 91.822140000, radius: 300.0, google_maps_link: https://www.google.com/maps?q=22.361372000,91.822140000, full_address: Chittagong, Bangladesh, established_date: null, office_start_time: 08:00:00, office_
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): null
+I/flutter ( 5996): {"name":"Naim","group-name":["General User"],"designation":"Junior Software Developer","department":"Panacea Tech","branch":"Naim's Home","company":"Panacea Private Consulting Group","gender":null,"mobile":null,"employee_id":null,"date_of_joining":null,"last_attendance_check":null,"last_attendance_date":"2025-03-19"}
+I/flutter ( 5996): Getting Machine Permission
+I/flutter ( 5996): Machine Permission: {name: Naim, group-name: [General User], designation: Junior Software Developer, department: Panacea Tech, branch: Naim's Home, company: Panacea Private Consulting Group, gender: null, mobile: null, employee_id: null, date_of_joining: null, last_attendance_check: null, last_attendance_date: 2025-03-19}

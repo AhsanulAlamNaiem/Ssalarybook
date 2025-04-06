@@ -1,13 +1,17 @@
-import 'package:beton_book/services/api_services.dart';
+import 'package:beton_book/features/authentication/api_services.dart';
+import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:beton_book/services/appResources.dart';
-import 'package:beton_book/services/app_provider.dart';
-import 'package:beton_book/services/scretResources.dart';
+import 'package:beton_book/core/constants/appResources.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/core/constants/scretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'screens/home_screen.dart';
+import '../../home_screen.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -280,7 +284,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         HomeScreen(
-                                          user: userWithAllInfo,
                                         )));
                           },
                           child: Text("Ok"))

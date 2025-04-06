@@ -1,10 +1,12 @@
 import 'dart:convert';
-import 'package:beton_book/services/scretResources.dart';
+import 'package:beton_book/core/constants/scretResources.dart';
+import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/features/punchInOut/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import 'appResources.dart';
-import 'app_provider.dart';
+import '../../core/constants/appResources.dart';
+import '../../core/presentation/app_provider.dart';
 
 class ApiService{
   final storage = FlutterSecureStorage();

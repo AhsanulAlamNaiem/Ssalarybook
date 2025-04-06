@@ -1,17 +1,20 @@
 
 import 'dart:convert';
 
-import 'package:beton_book/services/appResources.dart';
-import 'package:beton_book/services/app_provider.dart';
-import 'package:beton_book/services/scretResources.dart';
+import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/core/constants/appResources.dart';
+import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/core/constants/scretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
-import 'login_page.dart';
-import 'screens/home_screen.dart';
+import 'core/data/CachedDataService.dart';
+import 'features/authentication/login_page.dart';
+import 'features/punchInOut/provider.dart';
+import 'home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,9 +31,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider(
-              create: (context)=>AppProvider()
-          )
+          ChangeNotifierProvider(create: (context)=>AppProvider()),
+          ChangeNotifierProvider(create: (context)=>PunchingProvider()),
       ],
     child: MaterialApp(
       localizationsDelegates: const [
@@ -39,7 +41,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('en', ''), // Add other locales if needed
       ],
-      navigatorKey: AppNavigator.navigatorKey,
+      navigatorKey: GlobalNavigator.navigatorKey,
       debugShowCheckedModeBanner: false,
       home: SplashScreen(),
     ));
@@ -62,34 +64,14 @@ class _SPlashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _loginControl();
   }
 
   Future<void> _loginControl() async {
-    Future.delayed(Duration(seconds: 5), () {
-      print("wait 5 second");
-    });
-    print("doing next");
+    final bool isLoggedIn = await CachedDataService.isLoggedIn();
 
-    final strUser = await storage.read(key: AppSecuredKey.userObject);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogInPage()));
-    print("token $strUser");
-    if (strUser != null) {
-      print(strUser);
-      User user = User.fromJson(jsonDecode(strUser));
-      print("branches: ${user.locations[0].longitude}");
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<AppProvider>().updateUser(newUser: user);
-      });
-      print("${user.permissionGroups} ${user.designation}");
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> isLoggedIn?LogInPage(): HomeScreen()));
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen(
-          user: user
-      )));
-    } else{
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LogInPage()));
-    }
   }
 
   @override

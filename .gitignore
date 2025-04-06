@@ -43,5 +43,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/lib/services/scretResources.dart
+/lib/core/constants/scretResources.dart
 apkMover.dart

@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'package:beton_book/core/domain/attendance.dart';
+import 'package:beton_book/core/domain/employee.dart';
+import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
-import 'package:beton_book/services/appResources.dart';
+import 'package:beton_book/core/constants/appResources.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../services/scretResources.dart';
-import 'employee_details_page.dart';
+import '../../core/constants/scretResources.dart';
+import '../employee_list/employee_details_page.dart';
 
 
 class LogsPage extends StatefulWidget {

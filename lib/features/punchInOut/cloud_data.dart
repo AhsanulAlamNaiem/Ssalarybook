@@ -1,0 +1,115 @@
+import 'dart:convert';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/features/punchInOut/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/scretResources.dart';
+import '../../core/navigation/global_app_navigator.dart';
+import '../../core/network_manager/api_end_points.dart';
+import '../../core/network_manager/dio_client.dart';
+import '../../core/presentation/widgets/app_utility.dart';
+
+class CloudData{
+  final PunchingProvider _provider = GlobalNavigator.navigatorKey.currentContext!.read<PunchingProvider>();
+  final AppProvider _globalProvider = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>();
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final DioClient _dioClient = DioClient();
+
+
+  // punch in >>>>>>>>>>>>>>>>>>>>>>>
+  Future<void> punchIn() async{
+    _provider.setLoadingStatus(true);
+
+    if(_provider.position==null){
+      _provider.setLoadingStatus(false);
+      return;
+    }
+
+    final user = _provider.user!;
+    print("User Location:");
+    user.locations.forEach((loc)=>print("${loc.longitude} - ${loc.latitude} - ${loc.branch_id}"));
+
+    final body =
+    {
+      "entry_latitude": "${_provider.position!.latitude}",
+      "entry_longitude": "${_provider.position!.longitude}",
+    };
+
+    print(body);
+    Map<String, String> headers = _globalProvider.authHeader;
+
+    final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
+    print(response.statusCode);
+
+    try{
+      if (response.statusCode == 201) {
+        final data = jsonDecode(response.data);
+        print("writing");
+        _storage.write(key: AppSecuredKey.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
+        print("written");
+
+        final message = data["message"];
+        AppUtility.showToast(message: message);
+        _provider.setPunchInStatus(true);
+      } else if (response.statusCode ==400){
+        final responseJson = jsonDecode(response.data);
+        final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
+
+        AppUtility.showToast(message: message);
+
+      } else{
+        print("response: ${response.statusCode} ${response.data}");
+        AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+      }} catch(e){
+      AppUtility.showToast(message: "SomeThing Went Wrong! \\$e");
+    }
+    _provider.setLoadingStatus(true);
+  }
+
+
+
+  Future<void> punchOut() async{
+    _provider.setLoadingStatus(true);
+
+    if(_provider.position==null){
+      _provider.setLoadingStatus(false);
+      return;
+    }
+
+    final body = {
+      "exit_latitude": "${_provider.position!.latitude}",
+      "exit_longitude": "${_provider.position!.longitude}",
+    };
+
+    print(body);
+
+    try{
+      final response = await _dioClient.post(ApiEndPoints.punchOut, data: body);
+      print(response.statusCode  );
+
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.data);
+        final message = data["message"];
+        AppUtility.showToast(message: message);
+
+        await _storage.delete(key: AppSecuredKey.didPunchIn);
+        _provider.setPunchInStatus(false);
+
+      } else if (response.statusCode ==400){
+        final responseJson = jsonDecode(response.data);
+        final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
+        AppUtility.showToast(message: message);
+
+      }else{
+        AppUtility.showToast(message: " ${response.statusCode}${response.statusCode==500?" - server Eror":""} - Something Went Wrong");
+      }
+    } catch(e){
+      AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+    }
+
+    _provider.setLoadingStatus(false);
+  }
+
+}

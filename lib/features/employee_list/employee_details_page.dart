@@ -1,6 +1,8 @@
-import 'package:beton_book/services/appResources.dart';
+import 'package:beton_book/core/domain/employee.dart';
+import 'package:beton_book/core/constants/appResources.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'employee_details.dart';
+import '../../core/presentation/widgets/employee_details.dart';
 
 class EmployeeDetailsPage extends StatefulWidget {
   final Employee employee;

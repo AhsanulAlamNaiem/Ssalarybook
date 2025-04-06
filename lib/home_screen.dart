@@ -1,19 +1,21 @@
-import 'package:beton_book/screens/Employees_list_page.dart';
-import 'package:beton_book/screens/signup_requests_page.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/presentation/widgets/custom_app_bar.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
+import 'package:beton_book/features/authentication/signup_requests_page.dart';
+import 'package:beton_book/features/employee_list/Employees_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../login_page.dart';
-import '../services/appResources.dart';
-import '../services/scretResources.dart';
-import 'Logs_page.dart';
-import 'employee_details.dart';
-import 'employee_details_page.dart';
-import 'tracking_page.dart';
+import 'package:provider/provider.dart';
+import 'core/constants/scretResources.dart';
+import 'core/data/CachedDataService.dart';
+import 'core/presentation/widgets/employee_details.dart';
+import 'features/attendance_log/Logs_page.dart';
+import 'features/authentication/login_page.dart';
+import 'features/punchInOut/tracking_page.dart';
 
 class HomeScreen extends StatefulWidget {
-  final User user;
-  const HomeScreen({ required this.user, super.key});
+  const HomeScreen({super.key});
 
   @override
   _HomeScreenState createState() {
@@ -25,17 +27,16 @@ class _HomeScreenState extends State<HomeScreen> {
   final storage = FlutterSecureStorage();
   int _currentIndex = 0;
 
-  final GlobalKey<EmployeeDetailsState> page1Key = GlobalKey();
+  @override
+  void initState() {
+    CachedDataService().fetchAllDataToProvider();
+  }
 
-
-  void _refreshPage() {
-    page1Key.currentState?.refresh();  }
 
   @override
   Widget build(BuildContext context) {
-    final user = widget.user;
-    // user.permissionGroups.add("Admin");
-    final designation = user.designation;
+    final user = context.read<AppProvider>().user!;
+    user.permissionGroups.add("Admin");
 
     final List<Widget> pages = [
       EmployeeDetails(employee:  user),
@@ -48,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(Icons.access_time), label: "Track"),
     ];
-    print(designation);
+
     if(user.permissionGroups.contains("Admin")){
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.list), label: "Log"));
       _navigationItems.add(BottomNavigationBarItem(icon: Icon(Icons.group), label: "Employees"));

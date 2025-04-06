@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'package:beton_book/core/domain/employee.dart';
+import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/appResources.dart';
-import '../services/app_provider.dart';
-import '../services/scretResources.dart';
+import '../../core/constants/appResources.dart';
+import '../../core/presentation/app_provider.dart';
+import '../../core/constants/scretResources.dart';
 import 'package:http/http.dart' as http;
 
-import 'employee_details_page.dart';
+import '../employee_list/employee_details_page.dart';
 
 class SignupRequestsPage extends StatefulWidget {
   @override

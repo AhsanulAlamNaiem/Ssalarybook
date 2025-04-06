@@ -1,14 +1,18 @@
-import 'package:beton_book/services/api_services.dart';
-import 'package:beton_book/sign_up_page.dart';
+import 'package:beton_book/features/authentication/api_services.dart';
+import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
+import 'package:beton_book/core/theme/app_colors.dart';
+import 'package:beton_book/features/authentication/sign_up_page.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
-import 'package:beton_book/services/appResources.dart';
-import 'package:beton_book/services/app_provider.dart';
-import 'package:beton_book/services/scretResources.dart';
+import 'package:beton_book/core/constants/appResources.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/core/constants/scretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import 'screens/home_screen.dart';
+import '../../home_screen.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -211,8 +215,8 @@ class _LogInPageState extends State<LogInPage> {
         if(userWithAllInfo!= null) {
           storage.write(key: AppSecuredKey.userObject,
               value: jsonEncode(userWithAllInfo.toJson()));
-
           context.read<AppProvider>().updateUser(newUser: userWithAllInfo);
+
           
           showDialog(
               context: context,
@@ -228,9 +232,7 @@ class _LogInPageState extends State<LogInPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        HomeScreen(
-                                          user: userWithAllInfo,
-                                        )));
+                                        HomeScreen()));
                           },
                           child: Text("Ok"))
                     ],
