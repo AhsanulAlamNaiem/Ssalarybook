@@ -1,14 +1,11 @@
 import 'dart:convert';
-
 import 'package:beton_book/core/navigation/global_app_navigator.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/authentication/login_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-
-import '../constants/scretResources.dart';
+import '../constants/secretResources.dart';
 import '../domain/user.dart';
 
 class CachedDataService {
@@ -25,23 +22,18 @@ class CachedDataService {
   _getAuthHeaders(BuildContext context) async {
     final cachedAuthHeader = await storage.read(
         key: AppSecuredKey.authHeaders);
-    print("Cached auth Header: $cachedAuthHeader");
     final tokenjson = jsonDecode(cachedAuthHeader!);
-    final authHeaders = {"cookie": tokenjson['cookie'],
-      "Authorization": tokenjson['Authorization']
+    final authHeaders = {"cookie": tokenjson['cookie'].toString(),
+      "Authorization": tokenjson['Authorization'].toString()
     };
-    print("Auth Header: $authHeaders");
     context.read<AppProvider>().updateAuthHeader(newAuthHeader: authHeaders);
   }
 
   _getUser(BuildContext context) async {
     final strUser = await storage.read(key: AppSecuredKey.userObject);
-    print("token $strUser");
     if (strUser != null) {
       User user = User.fromJson(jsonDecode(strUser));
-      print("branches: ${user.locations[0].longitude}");
       context.read<AppProvider>().updateUser(newUser: user);
-      print("${user.permissionGroups} ${user.designation}");
     }
   }
 

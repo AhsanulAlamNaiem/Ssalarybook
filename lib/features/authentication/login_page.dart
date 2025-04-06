@@ -8,11 +8,11 @@ import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'package:beton_book/core/constants/appResources.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
-import 'package:beton_book/core/constants/scretResources.dart';
+import 'package:beton_book/core/constants/secretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../../home_screen.dart';
+import '../../core/presentation/home_screen.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});

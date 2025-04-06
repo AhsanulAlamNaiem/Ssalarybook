@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:beton_book/core/constants/scretResources.dart';
+import 'package:beton_book/core/constants/secretResources.dart';
 import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/features/punchInOut/location.dart';
 import 'package:http/http.dart' as http;

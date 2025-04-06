@@ -11,7 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import '../../core/presentation/app_provider.dart';
-import '../../core/constants/scretResources.dart';
+import '../../core/constants/secretResources.dart';
 import 'package:intl/intl.dart';
 
 import 'local_data.dart';
@@ -29,7 +29,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
   @override
   void initState() {
-    LocalData().getCurrentLocation();
+    WidgetsBinding.instance.addPostFrameCallback((_) => LocalData().getCurrentLocation());
   }
 
   @override
@@ -54,7 +54,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                     _cardBuilder(
                         heading: [
                           Text("Current Location", style: AppStyles.textH1),
-                          IconButton(onPressed: (){LocalData().getCurrentLocation();}, icon: Icon(Icons.refresh))
+                          IconButton(onPressed: ()=>LocalData().getCurrentLocation(), icon: Icon(Icons.refresh))
                         ],
                         children: isGettingLocation?[Column(
                           children: [

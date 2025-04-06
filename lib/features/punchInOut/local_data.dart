@@ -9,6 +9,8 @@ class LocalData{
   final AppProvider _globalProvider = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>();
 
 Future<void> getCurrentLocation() async {
+
+  print("started working");
     _provider.setGettingLocationStatus(true);
     _provider.setClickableStatus(false);
     Position? position;
@@ -16,8 +18,6 @@ Future<void> getCurrentLocation() async {
 
   if (permission == LocationPermission.denied) {
       _provider.setLocationMessage("Permission Denied");
-      _provider.setGettingLocationStatus(false);
-    return;
   }
 
   try{
@@ -40,5 +40,6 @@ Future<void> getCurrentLocation() async {
       _provider.setLocationMessage(locationMessage);
       _provider.setGettingLocationStatus(false);
   }
+    _provider.setGettingLocationStatus(false);
 }
 }

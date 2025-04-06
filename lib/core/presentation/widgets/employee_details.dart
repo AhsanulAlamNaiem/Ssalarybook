@@ -5,12 +5,12 @@ import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:http/http.dart' as http;
-import 'package:beton_book/core/constants/appResources.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
-
-import '../../constants/scretResources.dart';
+import 'package:provider/provider.dart';
+import '../../constants/secretResources.dart';
+import '../app_provider.dart';
 
 
 class EmployeeDetails extends StatefulWidget {
@@ -30,11 +30,13 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
 
   @override
   void initState() {
-    // TODO: implement initState
-    _loadAttendance();
-    setState(() {
-      isLoading = false;
-    });
+    if(widget.employee.id == context.read<AppProvider>().user.id){
+      if(context.read<AppProvider>().currentUsersAttendanceLog.isNotEmpty){
+        lstAttendanceLog = context.read<AppProvider>().currentUsersAttendanceLog;
+      } else{
+        _loadAttendance();
+      }
+    }
   }
 
   void refresh() {
@@ -58,6 +60,9 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
       lstAttendanceLog = attendanceList;
+      if(widget.employee.id == context.read<AppProvider>().user.id){
+        context.read<AppProvider>().updateCurrentUsersAttendance(attendanceList);
+      }
       print(lstAttendanceLog!.length);
       print("attendencelog");
     }else{

@@ -5,7 +5,7 @@ import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/core/constants/appResources.dart';
 import 'package:beton_book/core/navigation/global_app_navigator.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
-import 'package:beton_book/core/constants/scretResources.dart';
+import 'package:beton_book/core/constants/secretResources.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import 'core/data/CachedDataService.dart';
 import 'features/authentication/login_page.dart';
 import 'features/punchInOut/provider.dart';
-import 'home_screen.dart';
+import 'core/presentation/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,8 +69,7 @@ class _SPlashScreenState extends State<SplashScreen> {
 
   Future<void> _loginControl() async {
     final bool isLoggedIn = await CachedDataService.isLoggedIn();
-
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> isLoggedIn?LogInPage(): HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> isLoggedIn? HomeScreen():LogInPage()));
 
   }
 

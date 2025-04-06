@@ -7,12 +7,12 @@ import 'package:beton_book/features/employee_list/Employees_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import 'core/constants/scretResources.dart';
-import 'core/data/CachedDataService.dart';
-import 'core/presentation/widgets/employee_details.dart';
-import 'features/attendance_log/Logs_page.dart';
-import 'features/authentication/login_page.dart';
-import 'features/punchInOut/tracking_page.dart';
+import '../constants/secretResources.dart';
+import '../data/CachedDataService.dart';
+import 'widgets/employee_details.dart';
+import '../../features/attendance_log/Logs_page.dart';
+import '../../features/authentication/login_page.dart';
+import '../../features/punchInOut/tracking_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final storage = FlutterSecureStorage();
   int _currentIndex = 0;
 
+
   @override
   void initState() {
     CachedDataService().fetchAllDataToProvider();
@@ -35,8 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.read<AppProvider>().user!;
-    user.permissionGroups.add("Admin");
+    final user = context.watch<AppProvider>().user;
+
+    // user.permissionGroups.add("Admin");
 
     final List<Widget> pages = [
       EmployeeDetails(employee:  user),
@@ -100,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 items: _navigationItems,
               )),
-          body: pages[_currentIndex],
+          body: user==null? CircularProgressIndicator(): pages[_currentIndex],
           drawer: Container(
             width: MediaQuery.of(context).size.width * 0.85,
             child: Drawer(

@@ -11,7 +11,7 @@ class PunchingProvider extends ChangeNotifier{
 
   String locationMessage = "No location Found";
   Position? position;
-  bool isGettingLocation = false;
+  bool isGettingLocation = true;
   double distance = 10000;
   bool canPunchIn = false;
   bool didPunchIn = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.didPunchinToday();
