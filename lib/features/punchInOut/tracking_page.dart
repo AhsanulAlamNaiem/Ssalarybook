@@ -1,18 +1,12 @@
-import 'dart:convert';
-import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/app_utility.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/features/punchInOut/cloud_data.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:provider/provider.dart';
-import '../../core/presentation/app_provider.dart';
-import '../../core/constants/secretResources.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import 'local_data.dart';
 
@@ -34,9 +28,9 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
   @override
   Widget build(BuildContext context) {
-    PunchingProvider provider = context.read<PunchingProvider>();
+    PunchingProvider provider = context.watch<PunchingProvider>();
     String locationMessage = provider.locationMessage;
-    bool didPunchIn = provider.didPunchIn;
+    bool didPunchIn = true;// provider.didPunchIn;
     bool isLoading = provider.isLoading;
     bool isClickable = provider.isClickable;
     bool isGettingLocation = provider.isGettingLocation;
@@ -56,12 +50,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                           Text("Current Location", style: AppStyles.textH1),
                           IconButton(onPressed: ()=>LocalData().getCurrentLocation(), icon: Icon(Icons.refresh))
                         ],
-                        children: isGettingLocation?[Column(
-                          children: [
-                            // CircularProgressIndicator(),
-                            Text("Getting current Location .. .")
-                          ],)]:[
-                          Text(locationMessage, style: AppStyles.textH3,),
+                        children: [
+                          Text(
+                            isGettingLocation? "Getting current Location .. .": locationMessage,
+                            style: isGettingLocation ? null:AppStyles.textH3,),
                         ]
                     ),
                     // Text(""),
@@ -72,6 +64,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                     //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
                     //   print(data);
                     // }, child: Text("read")),
+
                     isLoading || isGettingLocation?AppWidgets.progressIndicator: ElevatedButton(
                       style: AppStyles.elevatedButtonStyleFullWidth,
                       onPressed: isGettingLocation || (!isClickable)? null:() async{

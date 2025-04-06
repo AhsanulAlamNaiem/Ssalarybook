@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,7 @@ class CloudData{
 
         final message = data["message"];
         AppUtility.showToast(message: message);
-        _provider.setPunchInStatus(true);
+        _provider.setDidPunchIn(true);
       } else if (response.statusCode ==400){
         final responseJson = jsonDecode(response.data);
         final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
@@ -64,8 +65,11 @@ class CloudData{
       }} catch(e){
       AppUtility.showToast(message: "SomeThing Went Wrong! \\$e");
     }
-    _provider.setLoadingStatus(true);
+    _provider.setLoadingStatus(false);
   }
+
+
+
 
 
 
@@ -95,18 +99,26 @@ class CloudData{
         AppUtility.showToast(message: message);
 
         await _storage.delete(key: AppSecuredKey.didPunchIn);
-        _provider.setPunchInStatus(false);
+        _provider.setDidPunchIn(true);
 
-      } else if (response.statusCode ==400){
-        final responseJson = jsonDecode(response.data);
-        final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
-        AppUtility.showToast(message: message);
-
-      }else{
-        AppUtility.showToast(message: " ${response.statusCode}${response.statusCode==500?" - server Eror":""} - Something Went Wrong");
       }
-    } catch(e){
-      AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final data = e.response?.data;
+        if (data is Map<String, dynamic>) {
+          final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
+          AppUtility.showToast(message: message);
+        } else {
+          print("response: $statusCode ${e.response?.data}");
+          AppUtility.showToast(message: "Something went wrong! Check Internet Connection.");
+        }
+      } else {
+        // Network error, timeout, etc.
+        AppUtility.showToast(message: "Something went wrong! ${e.message}");
+      }
+    } catch (e) {
+      AppUtility.showToast(message: "Unexpected Error: $e");
     }
 
     _provider.setLoadingStatus(false);

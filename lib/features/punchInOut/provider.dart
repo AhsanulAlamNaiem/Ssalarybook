@@ -13,7 +13,6 @@ class PunchingProvider extends ChangeNotifier{
   Position? position;
   bool isGettingLocation = true;
   double distance = 10000;
-  bool canPunchIn = false;
   bool didPunchIn = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.didPunchinToday();
   bool isLoading = false;
   bool isClickable = true;
@@ -54,11 +53,6 @@ class PunchingProvider extends ChangeNotifier{
   notifyListeners();
   }
 
-  // Update punch-in status
-  void setPunchInStatus(bool status) {
-  canPunchIn = status;
-  notifyListeners();
-  }
 
   // Update punch-in confirmation
   void setDidPunchIn(bool status, {int attendanceId = 0}) {

@@ -9,8 +9,6 @@ class LocalData{
   final AppProvider _globalProvider = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>();
 
 Future<void> getCurrentLocation() async {
-
-  print("started working");
     _provider.setGettingLocationStatus(true);
     _provider.setClickableStatus(false);
     Position? position;
@@ -21,7 +19,7 @@ Future<void> getCurrentLocation() async {
   }
 
   try{
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     _provider.setPosition(position);
   } catch(e){
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -34,8 +32,7 @@ Future<void> getCurrentLocation() async {
   }
 
   if(position!=null){
-      final locationMessage =
-      'Latitude: ${position!.latitude},\nLongitude: ${position!.longitude}';
+      final locationMessage ='Latitude: ${position!.latitude},\nLongitude: ${position!.longitude}';
       _provider.setClickableStatus(true);
       _provider.setLocationMessage(locationMessage);
       _provider.setGettingLocationStatus(false);

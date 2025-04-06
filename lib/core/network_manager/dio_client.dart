@@ -10,8 +10,8 @@ class DioClient {
     dio = Dio(
       BaseOptions(
         baseUrl: "https://salary-book.onrender.com/api",
-        connectTimeout: Duration(seconds: 10),
-        receiveTimeout: Duration(seconds: 10),
+        connectTimeout: Duration(seconds: 30),
+        receiveTimeout: Duration(seconds: 30),
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
