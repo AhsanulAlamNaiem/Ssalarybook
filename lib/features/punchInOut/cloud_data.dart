@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:beton_book/core/domain/response.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
 import 'package:dio/dio.dart';
@@ -40,10 +41,9 @@ class CloudData{
       final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
       if (response.statusCode == 201) {
         final data = jsonDecode(response.data);
-        _storage.write(key: CacheKeys.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
         responseMessage = data["message"];
-        AppUtility.showToast(message: responseMessage);
-        _provider.setDidPunchIn(true, attendanceId: 3 );
+        AppUtility.showToast(FunctionResponse(success: true, message: responseMessage));
+        _provider.setDidPunchIn(true);
         return true;
       }
     } on DioException catch (e) {
@@ -52,30 +52,24 @@ class CloudData{
         final data = e.response?.data;
         if (data is Map<String, dynamic>) {
           // Server responded error in my request
-          final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
-          AppUtility.showToast(message: message);
+          responseMessage = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
         } else {
           // Server not responded
           print("response: $statusCode ${e.response?.data}");
-          AppUtility.showToast(message: "Server Error,Please try again letter.");
+          responseMessage= "Server Error,Please try again letter.";
         }
       } else {
         // Network error, timeout, etc.
-        AppUtility.showToast(message: "Something went wrong! Check Internet Connection.");
+        responseMessage= "Something went wrong! Check Internet Connection.";
       }
     } catch (e) {
-      AppUtility.showToast(message: "System Error.");
+      responseMessage= "System Error.";
     } finally {
     print("punchin ends");
     _provider.setLoadingStatus(false);
     }
     return false;
   }
-
-
-
-
-
 
   Future<void> punchOut() async{
     _provider.setLoadingStatus(true);
@@ -99,12 +93,11 @@ class CloudData{
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.data);
-        final message = data["message"];
-        AppUtility.showToast(message: message);
+        responseMessage = data["message"];
+        AppUtility.showToast(AppUtility.showToast(FunctionResponse(success: true, message: responseMessage)));
 
         await _storage.delete(key: CacheKeys.didPunchIn);
         _provider.setDidPunchIn(true);
-
       }
     } on DioException catch (e) {
       if (e.response != null) {
@@ -112,17 +105,16 @@ class CloudData{
         final data = e.response?.data;
         if (data is Map<String, dynamic>) {
           final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
-          AppUtility.showToast(message: message);
         } else {
           print("response: $statusCode ${e.response?.data}");
-          AppUtility.showToast(message: "Something went wrong! Check Internet Connection.");
+        responseMessage= "Server Error,Please try again letter.";
         }
       } else {
         // Network error, timeout, etc.
-        AppUtility.showToast(message: "Something went wrong! ${e.message}");
+          responseMessage= "Something went wrong! Check Internet Connection.";
       }
     } catch (e) {
-      AppUtility.showToast(message: "Unexpected Error: $e");
+      responseMessage= "System Error.";
     }
 
     _provider.setLoadingStatus(false);

@@ -79,9 +79,9 @@ class User extends Employee {
     return didPunedin;
   }
 
-  void punchedIn(int attendanceId) {
+  void punchedIn() {
     lastAttendanceDate = DateTime.now();
-    lastAttendanceId = attendanceId;
+    lastAttendanceId = null;
   }
 }
 

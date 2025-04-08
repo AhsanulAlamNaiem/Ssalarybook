@@ -17,17 +17,7 @@ class PunchingProvider extends ChangeNotifier{
   bool isLoading = false;
   bool isClickable = true;
   Map<String, String>? authHeaders;
-  int? lastAttendanceId;
-  int? lastAttendanceDate;
-  // User? user = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!;
 
-  // void setLastAttendanceID(String? id){
-  //   if(id!=null) {
-  //     locationMessage = id;
-  //     didPunchIn= true;
-  //   }
-  //   notifyListeners();
-  // }
 
   // Update location message
   void setLocationMessage(String message) {
@@ -56,13 +46,9 @@ class PunchingProvider extends ChangeNotifier{
 
 
   // Update punch-in confirmation
-  void setDidPunchIn(bool status, {int? attendanceId}) {
-    if(status && attendanceId != null ){
-    GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.punchedIn(attendanceId);
-    lastAttendanceId = attendanceId;
-    } else if(status && attendanceId != null){
-      throw Exception("If status True, You must provide attendanceId");
-    }
+  void setDidPunchIn(bool status) {
+    GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.punchedIn();
+
     didPunchIn = status;
     notifyListeners();
   }

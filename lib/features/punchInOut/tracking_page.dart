@@ -9,6 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/domain/response.dart';
 import 'local_data.dart';
 
 
@@ -82,7 +83,7 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                             isClickable = false;
                             isLoading = false;
                           });
-                          AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
+                          AppUtility.showToast(FunctionResponse(success: false, message: "SomeThing Went Wrong! Check Internet Connection."));
                         }
                       },
                       child: Text(
