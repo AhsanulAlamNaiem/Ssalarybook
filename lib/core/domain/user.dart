@@ -46,6 +46,7 @@ class User extends Employee {
         .toList()
         .cast<Location>();
     final data_Of_Joining = json['date_of_joining'];
+    print(data_Of_Joining);
 
     return User(
       id: json['id'],
@@ -78,18 +79,18 @@ class User extends Employee {
 
   // New method
   bool didPunchinToday() {
-    return lastAttendanceId != null && isToday(lastAttendanceDate!);
-  }
-
-  bool isToday(DateTime date) {
-    final now = DateTime.now();
-    return date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day;
+    return lastAttendanceId != null && _isToday(lastAttendanceDate!);
   }
 
   void punchedIn(int attendanceId) {
     lastAttendanceDate = DateTime.now();
     lastAttendanceId = attendanceId;
   }
+}
+
+bool _isToday(DateTime date) {
+  final now = DateTime.now();
+  return date.year == now.year &&
+      date.month == now.month &&
+      date.day == now.day;
 }
