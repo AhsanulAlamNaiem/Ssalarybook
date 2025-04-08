@@ -55,10 +55,10 @@ class User extends Employee {
       dateOfJoining: data_Of_Joining!=null? DateTime.parse(data_Of_Joining): DateTime.now(),
       // locations: locationsListOfLocations,
       permissionGroups: json["group-name"] ?? [],
-      lastAttendanceDate: json['lastAttendanceDate'] != null
-          ? DateTime.parse(json['lastAttendanceDate'])
+      lastAttendanceDate: json['last_attendance_date'] != null
+          ? DateTime.parse(json['last_attendance_date'])
           : null,
-      lastAttendanceId: json['lastAttendanceId'],
+      lastAttendanceId: json['last_attendance_check'],
     );
   }
 
