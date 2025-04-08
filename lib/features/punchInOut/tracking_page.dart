@@ -1,3 +1,4 @@
+import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/app_utility.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
@@ -24,13 +25,17 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) => LocalData().getCurrentLocation());
+    print("0️⃣Did punched In: ${context.read<PunchingProvider>().didPunchIn}");
+    print("0️⃣Did punched In: ${context.read<AppProvider>().user!.didPunchinToday()}");
+    print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceId}");
+    print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceDate}");
   }
 
   @override
   Widget build(BuildContext context) {
     PunchingProvider provider = context.watch<PunchingProvider>();
     String locationMessage = provider.locationMessage;
-    bool didPunchIn = true;// provider.didPunchIn;
+    bool didPunchIn =  provider.didPunchIn;
     bool isLoading = provider.isLoading;
     bool isClickable = provider.isClickable;
     bool isGettingLocation = provider.isGettingLocation;

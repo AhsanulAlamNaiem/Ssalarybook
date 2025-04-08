@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
 import 'package:dio/dio.dart';
@@ -17,55 +18,58 @@ class CloudData{
   final FlutterSecureStorage _storage = FlutterSecureStorage();
   final DioClient _dioClient = DioClient();
 
+  static String responseMessage = "";
+
 
   // punch in >>>>>>>>>>>>>>>>>>>>>>>
-  Future<void> punchIn() async{
+  Future<bool> punchIn() async{
     _provider.setLoadingStatus(true);
 
     if(_provider.position==null){
       _provider.setLoadingStatus(false);
-      return;
+      responseMessage = "Failed to Get the  location";
+      return false;
     }
 
-    final user = _provider.user!;
-    print("User Location:");
-    user.locations.forEach((loc)=>print("${loc.longitude} - ${loc.latitude} - ${loc.branch_id}"));
-
-    final body =
-    {
+    final body ={
       "entry_latitude": "${_provider.position!.latitude}",
       "entry_longitude": "${_provider.position!.longitude}",
     };
 
-    print(body);
-    Map<String, String> headers = _globalProvider.authHeader;
-
-    final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
-    print(response.statusCode);
-
     try{
+      final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
       if (response.statusCode == 201) {
         final data = jsonDecode(response.data);
-        print("writing");
         _storage.write(key: AppSecuredKey.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
-        print("written");
-
-        final message = data["message"];
-        AppUtility.showToast(message: message);
-        _provider.setDidPunchIn(true);
-      } else if (response.statusCode ==400){
-        final responseJson = jsonDecode(response.data);
-        final message = '${responseJson['error']['message']?? "Something went wrong"}\n\n ${responseJson['error']['details']??"Try again later"}';
-
-        AppUtility.showToast(message: message);
-
-      } else{
-        print("response: ${response.statusCode} ${response.data}");
-        AppUtility.showToast(message: "SomeThing Went Wrong! Check Internet Connection.");
-      }} catch(e){
-      AppUtility.showToast(message: "SomeThing Went Wrong! \\$e");
-    }
+        responseMessage = data["message"];
+        AppUtility.showToast(message: responseMessage);
+        _provider.setDidPunchIn(true, attendanceId: 3 );
+        return true;
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final statusCode = e.response?.statusCode;
+        final data = e.response?.data;
+        if (data is Map<String, dynamic>) {
+          // Server responded error in my request
+          final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
+          AppUtility.showToast(message: message);
+        } else {
+          // Server not responded
+          print("response: $statusCode ${e.response?.data}");
+          AppUtility.showToast(message: "Server Error,Please try again letter.");
+        }
+      } else {
+        // Network error, timeout, etc.
+        AppUtility.showToast(message: "Something went wrong! Check Internet Connection.");
+      }
+    } catch (e) {
+      AppUtility.showToast(message: "System Error.");
+    } finally {
+    print("punchin ends");
     _provider.setLoadingStatus(false);
+    }
+    return false;
   }
 
 

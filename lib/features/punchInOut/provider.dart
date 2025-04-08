@@ -19,15 +19,15 @@ class PunchingProvider extends ChangeNotifier{
   Map<String, String>? authHeaders;
   int? lastAttendanceId;
   int? lastAttendanceDate;
-  User? user = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!;
+  // User? user = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!;
 
-  void setLastAttendanceID(String? id){
-    if(id!=null) {
-      locationMessage = id;
-      didPunchIn= true;
-    }
-    notifyListeners();
-  }
+  // void setLastAttendanceID(String? id){
+  //   if(id!=null) {
+  //     locationMessage = id;
+  //     didPunchIn= true;
+  //   }
+  //   notifyListeners();
+  // }
 
   // Update location message
   void setLocationMessage(String message) {
@@ -44,6 +44,7 @@ class PunchingProvider extends ChangeNotifier{
   // Update getting location status
   void setGettingLocationStatus(bool status) {
   isGettingLocation = status;
+  isLoading = status;
   notifyListeners();
   }
 
@@ -55,9 +56,12 @@ class PunchingProvider extends ChangeNotifier{
 
 
   // Update punch-in confirmation
-  void setDidPunchIn(bool status, {int attendanceId = 0}) {
-    if(status){
+  void setDidPunchIn(bool status, {int? attendanceId}) {
+    if(status && attendanceId != null ){
     GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.punchedIn(attendanceId);
+    lastAttendanceId = attendanceId;
+    } else if(status && attendanceId != null){
+      throw Exception("If status True, You must provide attendanceId");
     }
     didPunchIn = status;
     notifyListeners();
