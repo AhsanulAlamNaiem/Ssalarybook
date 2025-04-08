@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:beton_book/core/Local_Data_Manager/cacheKeys.dart';
 import 'package:beton_book/core/domain/user.dart';
-import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/constants/global_app_navigator.dart';
 import 'package:beton_book/core/network_manager/api_end_points.dart';
 import 'package:beton_book/core/network_manager/dio_client.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';

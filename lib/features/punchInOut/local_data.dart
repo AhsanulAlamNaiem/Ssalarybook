@@ -2,7 +2,7 @@ import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
-import '../../core/navigation/global_app_navigator.dart';
+import '../../core/constants/global_app_navigator.dart';
 
 class LocalData{
   final PunchingProvider _provider = GlobalNavigator.navigatorKey.currentContext!.read<PunchingProvider>();

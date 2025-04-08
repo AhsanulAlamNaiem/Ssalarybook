@@ -31,22 +31,18 @@ class User extends Employee {
   );
 
   factory User.fromJson(Map<String, dynamic> json) {
+
     final locationsListOfObject = json["locations"] ??
-        [
-          {"longitude": 0.0000, "latitude": 0.0000, "id": "Not a company location"}
-        ];
-    final locationsListOfLocations = locationsListOfObject
-        .map((json) {
-      print(json);
+        [{"longitude": 0.0000, "latitude": 0.0000, "id": "Not a company location"}];
+    final locationsListOfLocations = locationsListOfObject.map((json) {
       return Location(
           longitude: json["longitude"],
           latitude: json["latitude"],
           branch_id: json["id"]);
-    })
-        .toList()
-        .cast<Location>();
+    }).toList().cast<Location>();
+
     final data_Of_Joining = json['date_of_joining'];
-    print(data_Of_Joining);
+
 
     return User(
       id: json['id'],

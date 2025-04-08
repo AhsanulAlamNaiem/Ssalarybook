@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/constants/global_app_navigator.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/authentication/login_page.dart';
 import 'package:flutter/material.dart';

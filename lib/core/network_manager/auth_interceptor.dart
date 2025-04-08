@@ -1,4 +1,4 @@
-import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/constants/global_app_navigator.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';

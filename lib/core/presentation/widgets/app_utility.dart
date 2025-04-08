@@ -1,5 +1,5 @@
 import 'package:beton_book/core/constants/appResources.dart';
-import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/constants/global_app_navigator.dart';
 import 'package:flutter/material.dart';
 
 class AppUtility{
