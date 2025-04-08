@@ -38,7 +38,7 @@ class _LogsPageState extends State<LogsPage> {
   }
 
   void _loadEmployees() async{
-    final employees = await http.get(Uri.parse(AppApis.employeeDetails));
+    final employees = await http.get(Uri.parse(AppApis.employeeList));
     final companies = await http.get(Uri.parse(AppApis.company));
     final designations = await http.get(Uri.parse(AppApis.designations));
 
@@ -56,8 +56,8 @@ class _LogsPageState extends State<LogsPage> {
 
         print("${emp.company}: $company");
 
-        emp.company = company['name'];
-        emp.designation = designation['title'];
+        // emp.company = company['name'];
+        // emp.designation = designation['title'];
 
         return emp;
       }).toList().cast<Employee>();
