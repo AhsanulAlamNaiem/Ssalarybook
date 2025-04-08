@@ -43,7 +43,7 @@ class Employee {
       'phone': phone,
       'user': {'email': email},
       'company': company,
-      'date_of_joining': DateFormat('YYYY-MM-DD').format(dateOfJoining),
+      'date_of_joining': DateFormat('yyyy-MM-DD').format(dateOfJoining),
     };
   }
 }
