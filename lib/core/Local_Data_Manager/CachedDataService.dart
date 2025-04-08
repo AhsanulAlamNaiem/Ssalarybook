@@ -5,11 +5,11 @@ import 'package:beton_book/features/authentication/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import '../constants/secretResources.dart';
+import 'cacheClient.dart';
+import 'cacheKeys.dart';
 import '../domain/user.dart';
 
 class CachedDataService {
-  static final FlutterSecureStorage storage = FlutterSecureStorage();
   static final BuildContext context = GlobalNavigator.navigatorKey.currentContext!;
 
   Future<void> fetchAllDataToProvider() async {
@@ -20,7 +20,7 @@ class CachedDataService {
   }
 
   _getAuthHeaders(BuildContext context) async {
-    final cachedAuthHeader = await storage.read(
+    final cachedAuthHeader = await CacheClient.read(
         key: AppSecuredKey.authHeaders);
     final tokenjson = jsonDecode(cachedAuthHeader!);
     final authHeaders = {"cookie": tokenjson['cookie'].toString(),
@@ -30,7 +30,7 @@ class CachedDataService {
   }
 
   _getUser(BuildContext context) async {
-    final strUser = await storage.read(key: AppSecuredKey.userObject);
+    final strUser = await CacheClient.read(key: AppSecuredKey.userObject);
     if (strUser != null) {
       User user = User.fromJson(jsonDecode(strUser));
       context.read<AppProvider>().updateUser(newUser: user);
@@ -39,8 +39,8 @@ class CachedDataService {
 
   static Future<bool> isLoggedIn() async{
     try {
-      final strUser = await storage.read(key: AppSecuredKey.userObject);
-      final cachedAuthHeader = await storage.read(
+      final strUser = await CacheClient.read(key: AppSecuredKey.userObject);
+      final cachedAuthHeader = await CacheClient.read(
           key: AppSecuredKey.authHeaders);
       return (strUser == null || cachedAuthHeader == null) ? false : true;
     } catch(_){
@@ -50,7 +50,7 @@ class CachedDataService {
 
   _foreLogOut() async {
     final bool isCachedDeleted = await isLoggedIn();
-    storage.deleteAll();
+    CacheClient.deleteAll();
     Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_)=>LogInPage()),
