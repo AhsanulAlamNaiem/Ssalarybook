@@ -21,7 +21,7 @@ class CachedDataService {
 
   _getAuthHeaders(BuildContext context) async {
     final cachedAuthHeader = await CacheClient.read(
-        key: AppSecuredKey.authHeaders);
+        key: CacheKeys.authHeaders);
     final tokenjson = jsonDecode(cachedAuthHeader!);
     final authHeaders = {"cookie": tokenjson['cookie'].toString(),
       "Authorization": tokenjson['Authorization'].toString()
@@ -30,7 +30,7 @@ class CachedDataService {
   }
 
   _getUser(BuildContext context) async {
-    final strUser = await CacheClient.read(key: AppSecuredKey.userObject);
+    final strUser = await CacheClient.read(key: CacheKeys.userObject);
     if (strUser != null) {
       User user = User.fromJson(jsonDecode(strUser));
       context.read<AppProvider>().updateUser(newUser: user);
@@ -39,9 +39,9 @@ class CachedDataService {
 
   static Future<bool> isLoggedIn() async{
     try {
-      final strUser = await CacheClient.read(key: AppSecuredKey.userObject);
+      final strUser = await CacheClient.read(key: CacheKeys.userObject);
       final cachedAuthHeader = await CacheClient.read(
-          key: AppSecuredKey.authHeaders);
+          key: CacheKeys.authHeaders);
       return (strUser == null || cachedAuthHeader == null) ? false : true;
     } catch(_){
       return false;
