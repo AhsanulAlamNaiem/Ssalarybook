@@ -3,8 +3,9 @@ import 'package:dio/dio.dart';
 class LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print("➡️ Request: ${options.method} ${options.uri}");
-    print("Headers: ${options.headers}");
+    print("\n\n➡️ Request: ${options.method} ${options.uri}");
+    print("➡️ Body: ${options.data}");
+    print("Headers: ${options.headers}\n\n");
     handler.next(options);
   }
 
