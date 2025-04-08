@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Employee {
   final int id;
   final String name;
@@ -28,7 +30,7 @@ class Employee {
       department: json['department'].toString(),
       phone: json['mobile'].toString(),
       designation: json['designation'].toString(),
-      dateOfJoining: json['date_of_joining'],
+      dateOfJoining: DateTime.parse(json['date_of_joining']),
     );
   }
 
@@ -41,7 +43,7 @@ class Employee {
       'phone': phone,
       'user': {'email': email},
       'company': company,
-      'date_of_joining': dateOfJoining,
+      'date_of_joining': DateFormat('YYYY-MM-DD').format(dateOfJoining),
     };
   }
 }
