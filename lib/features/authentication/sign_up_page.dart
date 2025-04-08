@@ -256,52 +256,6 @@ class _SignUpPageState extends State<SignUpPage> {
         print(branch);
         print(mobile);
         return;
-
-    final authHeader = await ApiService().tryLogIn(
-        email: email, password: password);
-
-    if (authHeader!=null) {
-      final user = await ApiService().fetchUserInfoFunction();
-      if (user != null) {
-        final User userWithAllInfo = await ApiService().fetchUserPermissions(user: user);
-
-        if(userWithAllInfo!= null) {
-          storage.write(key: AppSecuredKey.userObject,
-              value: jsonEncode(userWithAllInfo.toJson()));
-
-          showDialog(
-              context: context,
-              builder: (context) =>
-                  AlertDialog(
-                    title: Text("Login Successful"),
-                    content: Text("Welcome, ${userWithAllInfo.name}"),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        HomeScreen(
-                                        )));
-                          },
-                          child: Text("Ok"))
-                    ],
-                  ));
-        } else{
-          showError('Failed Fetching User Permissions');
-        }
-      } else {
-        showError('Failed Fetching User Info');
-      }
-    } else {
-      showError('Failed to Log In\n${ApiService.message}');
-    }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
 

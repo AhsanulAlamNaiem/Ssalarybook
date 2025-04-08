@@ -3,6 +3,7 @@ import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
+import 'package:beton_book/features/authentication/provider.dart';
 import 'package:beton_book/features/authentication/sign_up_page.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
@@ -23,29 +24,18 @@ class LogInPage extends StatefulWidget {
 class _LogInPageState extends State<LogInPage> {
   String email = "";
   String password = "";
-  bool isLoading = false;
   final storage = FlutterSecureStorage();
   bool willSavePassword = true;
 
-
   final TextEditingController passwordController = TextEditingController();
   bool _obscurePassword = true; // This controls password visibility
-  void showError(String message) {
-    showDialog(
-        context: context,
-        builder: (contex) =>
-            AlertDialog(
-              title: Text('Error'),
-              content: Text(message),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context), child: Text("Ok"))
-              ],
-            ));
-  }
+
 
   @override
   Widget build(BuildContext context) {
+    bool isLoading = context
+        .watch<AuthenticationProvider>()
+        .isLoading;
     return Scaffold(
         appBar: PreferredSize(
             preferredSize: Size.fromHeight(80), // Adjust the height as needed
@@ -153,7 +143,7 @@ class _LogInPageState extends State<LogInPage> {
                           }
                           try {
                             loginFunction();
-                          } catch(e){
+                          } catch (e) {
                             print("error: $e");
                             setState(() {
                               isLoading = false;
@@ -171,7 +161,10 @@ class _LogInPageState extends State<LogInPage> {
                         },
                         child: Text(
                           "Login", style: TextStyle(color: Colors.white),)),
-                    TextButton(onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUpPage())), child: Text("Send Sign Up request?"))
+                    TextButton(onPressed: () =>
+                        Navigator.push(context, MaterialPageRoute(builder: (
+                            context) => SignUpPage())),
+                        child: Text("Send Sign Up request?"))
 
                     // ElevatedButton(
                     //     style: AppStyles.elevatedButtonStyle,
@@ -200,55 +193,51 @@ class _LogInPageState extends State<LogInPage> {
   }
 
   Future<void> loginFunction() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final authHeader = await ApiService().tryLogIn(
+    bool canLoggedIn = await ApiService().login(
         email: email, password: password);
 
-    if (authHeader!=null) {
-      final user = await ApiService().fetchUserInfoFunction();
-      if (user != null) {
-        final User userWithAllInfo = await ApiService().fetchUserPermissions(user: user);
+    if (canLoggedIn) {
+      final user = context
+          .read<AppProvider>()
+          .user;
 
-        if(userWithAllInfo!= null) {
-          storage.write(key: AppSecuredKey.userObject,
-              value: jsonEncode(userWithAllInfo.toJson()));
-          context.read<AppProvider>().updateUser(newUser: userWithAllInfo);
-
-          
-          showDialog(
-              context: context,
-              builder: (context) =>
-                  AlertDialog(
-                    title: Text("Login Successful"),
-                    content: Text("Welcome, ${userWithAllInfo.name}"),
-                    actions: [
-                      TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        HomeScreen()));
-                          },
-                          child: Text("Ok"))
-                    ],
-                  ));
-        } else{
-          showError('Failed Fetching User Permissions');
-        }
-      } else {
-        showError('Failed Fetching User Info');
-      }
+      showDialog(
+          context: context,
+          builder: (context) =>
+              AlertDialog(
+                  title: Text("Login Successful"),
+                  content: Text("Welcome, ${user.name}"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      HomeScreen()));
+                        },
+                        child: Text("Ok"))
+                  ]
+              ),
+          barrierDismissible: false
+      );
     } else {
-      showError('Failed to Log In\n${ApiService.message}');
+      showError(ApiService.message);
     }
+  }
 
-    setState(() {
-      isLoading = false;
-    });
+  void showError(String message) {
+    showDialog(
+        context: context,
+        builder: (contex) =>
+            AlertDialog(
+              title: Text('Error'),
+              content: Text(message),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context), child: Text("Ok"))
+              ],
+            ));
   }
 }

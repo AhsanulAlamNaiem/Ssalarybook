@@ -1,7 +1,7 @@
 import 'package:beton_book/core/domain/employee.dart';
 import 'package:beton_book/features/punchInOut/location.dart';
 class User extends Employee {
-  final List<Location> locations;
+  // final List<Location> locations;
   final List permissionGroups;
   DateTime? lastAttendanceDate; // New property
   int? lastAttendanceId; // New property
@@ -15,7 +15,7 @@ class User extends Employee {
     required String email,
     required String company,
     required DateTime dateOfJoining,
-    required this.locations,
+    // required this.locations,
     required this.permissionGroups,
     this.lastAttendanceDate, // Initializing new property
     this.lastAttendanceId, // Initializing new property
@@ -45,17 +45,18 @@ class User extends Employee {
     })
         .toList()
         .cast<Location>();
+    final data_Of_Joining = json['date_of_joining'];
 
     return User(
       id: json['id'],
-      name: "${json['first_name']} ${json['last_name']}",
+      name: json['name'].toString(),
       designation: json['designation'].toString(),
       department: json['department'].toString(),
       phone: json['phone'].toString(),
-      email: json["user"]['email'],
+      email: json['email'].toString(),
       company: json["company"].toString(),
-      dateOfJoining: json['date_of_joining'] ?? "",
-      locations: locationsListOfLocations,
+      dateOfJoining: data_Of_Joining!=null? DateTime.parse(data_Of_Joining): DateTime.now(),
+      // locations: locationsListOfLocations,
       permissionGroups: json["group-name"] ?? [],
       lastAttendanceDate: json['lastAttendanceDate'] != null
           ? DateTime.parse(json['lastAttendanceDate'])
@@ -67,7 +68,7 @@ class User extends Employee {
   @override
   Map<String, dynamic> toJson() {
     final json = super.toJson();
-    json['locations'] = locations.map((loc) => loc.toJson()).toList();
+    // json['locations'] = locations.map((loc) => loc.toJson()).toList();
     json['group-name'] = permissionGroups;
     json['lastAttendanceDate'] =
         lastAttendanceDate?.toIso8601String(); // Serializing new property

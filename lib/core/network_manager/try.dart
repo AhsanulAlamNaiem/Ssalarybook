@@ -1,13 +1,11 @@
-import 'dio_client.dart';
+import 'package:http/http.dart' as http;
 
 main()async{
-  // Send a POST request
-  final dioClient = DioClient();
+  String signupRequests = 'https://salary-book.onrender.com/api/usermanagement/employee-details/';
   final postData = {
-    'title': 'foo',
-    'body': 'bar',
-    'userId': 1
+    "cookie": "csrftoken=dcFafsIaYI8MoIB7Sio0injGSE8d6I3l; sessionid=2ealmw2x3b8lhzhtwshstpure6lqcjce",
+    "Authorization": "Token aea48c3164773e1510541e24f57e4fa745a6b0e9"
   };
-  final response = await dioClient.post('/texts', data: postData);
-  print(response.data);
+  final response = await http.get(Uri.parse(signupRequests), headers: postData);
+  print(response.body);
 }

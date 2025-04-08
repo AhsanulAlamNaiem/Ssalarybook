@@ -1,96 +1,76 @@
 import 'dart:convert';
 import 'package:beton_book/core/constants/secretResources.dart';
 import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/core/navigation/global_app_navigator.dart';
+import 'package:beton_book/core/network_manager/api_end_points.dart';
+import 'package:beton_book/core/network_manager/dio_client.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
+import 'package:beton_book/features/authentication/provider.dart';
 import 'package:beton_book/features/punchInOut/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
-import '../../core/constants/appResources.dart';
-import '../../core/presentation/app_provider.dart';
+import 'package:provider/provider.dart';
 
 class ApiService{
   final storage = FlutterSecureStorage();
-  static Map<String, String> authHeaders = {};
   static String message = "";
-  static int employeeIid = 0;
+  static Map<String,dynamic> userMap = {
 
-  Future<Map?> tryLogIn({required String email, required String password}) async {
-    final url = Uri.parse(AppApis.login);
-    final body = jsonEncode({"email": email, "password": password});
+  };
 
-    final headers = {'Content-Type': 'application/json'};
-    final response = await http.post(url, body: body, headers: headers);
-    print("TryLogin: ${response.statusCode} ${response.body}");
-    message = jsonDecode(response.body)["message"];
+  DioClient dioClient = DioClient();
+  AppProvider globalProvider = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>();
+  AuthenticationProvider localProvider = GlobalNavigator.navigatorKey.currentContext!.read<AuthenticationProvider>();
+
+  Future<bool> login({required String email, required String password})async{
+    final authHeader = await authenticate(email: email, password: password);
+    if(authHeader==null){
+      return false;
+    } else{
+      bool canFetchedUserInfo = await fetchUserInfoFunction();
+      if(canFetchedUserInfo){
+        globalProvider.updateAuthHeader(newAuthHeader: authHeader);
+        globalProvider.updateUser(newUser: User.fromJson(userMap));
+      }
+      return canFetchedUserInfo;
+    }
+}
+
+  Future<Map<String, String>?> authenticate({required String email, required String password}) async {
+    final body = {"email": email, "password": password};
+    final response = await dioClient.post(ApiEndPoints.login, data: body);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['data']["token"];
-      final cookies = response.headers['set-cookie']!.split(";");
-      final cookie = "${cookies[0]}; ${cookies[4].split(",")[1]}";
-      authHeaders = {"cookie": cookie, "Authorization": "Token $token"};
-      employeeIid = data['data']['employee_id'];
-      print("Writing Headers: $authHeaders");
-      await storage.write(key: AppSecuredKey.authHeaders, value: jsonEncode(authHeaders));
+      final token = response.data['data']["token"];
+      userMap["id"] = response.data['data']['employee_id'];
+      final csrfToken = response.headers['set-cookie']![0].split(";")[0];
+      final sessionId = response.headers['set-cookie']![1].split(";")[0];
+      final authHeaders = {"cookie": "$csrfToken; $sessionId", "Authorization": "Token $token"};
       return authHeaders;
     }
+
   }
 
-  Future<User?> fetchUserInfoFunction() async {
-    final employeeUrl = Uri.parse("${AppApis.employeeDetails}$employeeIid/");
-    print(employeeUrl);
-    final response = await http.get(employeeUrl, headers: authHeaders);
-    print("Info Resp ${response.body}");
-
+  Future<bool> fetchUserInfoFunction() async {
+    final response = await dioClient.get(ApiEndPoints.employeeDetails);
+    localProvider.setLoadingState(false);
     if (response.statusCode == 200) {
-      Map<String, dynamic> responseJson = jsonDecode(response.body).cast<String,dynamic>();
-      User user = User.fromJson(responseJson);
-      print("user");
-      print(user.name);
-      final companyUrl = "${AppApis.company}${user.company}/";
-      print(companyUrl);
-      final companyResponse = await http.get(Uri.parse(companyUrl));
-      print("Company response ${companyResponse.statusCode} ${companyResponse.body}");
-
-      if (companyResponse.statusCode == 200) {
-        final companyResponseJson = jsonDecode(companyResponse.body);
-        final branches = companyResponseJson['branches'] as List<dynamic>;
-        print(branches);
-        final List<Location>companyLocations = branches.map((branch) => Location.fromJson(branch)).toList().cast<Location>();
-        user.locations = companyLocations;
-      return user;
-    }}
-  }
-
-  Future fetchUserPermissions({User? user}) async {
-    final url = Uri.parse(AppApis.checkUserGroup);
-    final response = await http.get(url, headers: authHeaders);
-    print(response.body);
-
-    if (response.statusCode == 200) {
-      print("Getting Machine Permission");
-      final responseJson = jsonDecode(response.body);
-      print("Machine Permission: ${responseJson}");
-
-      if(user!=null) {
-        user.permissionGroups = responseJson["group-name"];
-        user.designation = responseJson["designation"];
-        user.department = responseJson["department"];
-        user.company = responseJson["company"];
-        return user;
-      } else{
-        return responseJson;
-      }
+      Map<String, dynamic> responseJson = response.data.cast<String,dynamic>();
+      userMap.addAll(responseJson);
+      return true;
+    } else{
+      return false;
     }
   }
 
+
   Future<List?> fetchCompaniesData() async {
-      final companyUrl = Uri.parse(AppApis.company);
-      final companyResponse = await http.get(companyUrl);
-      print("Company Response: ${companyResponse.body}");
-      if (companyResponse.statusCode == 200) {
-        final companyResponseJson = jsonDecode(companyResponse.body);
-        return companyResponseJson;
-      }}
+    final companyUrl = Uri.parse(AppApis.company);
+    final companyResponse = await http.get(companyUrl);
+    print("Company Response: ${companyResponse.body}");
+    if (companyResponse.statusCode == 200) {
+      final companyResponseJson = jsonDecode(companyResponse.body);
+      return companyResponseJson;
+    }}
 }
 

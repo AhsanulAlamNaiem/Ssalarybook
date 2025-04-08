@@ -16,8 +16,7 @@ class AppProvider extends ChangeNotifier{
   User user = User(
       id: 0,
       name: "", designation: "", department: "",
-      phone: "", email: "", company: "", dateOfJoining: "",
-      locations: [],
+      phone: "", email: "", company: "", dateOfJoining: DateTime.now(),
       permissionGroups: []);
 
   updateUser({required User newUser}){
