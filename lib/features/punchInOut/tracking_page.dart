@@ -62,14 +62,6 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                             style: isGettingLocation ? null:AppStyles.textH3,),
                         ]
                     ),
-                    // Text(""),
-                    // ElevatedButton(onPressed: ()=>_punchIn(), child: Text("PunchIn")),
-                    // ElevatedButton(onPressed: ()=>_loadAttendance(), child: Text("load")),
-                    // ElevatedButton(onPressed: ()=>_punchOut(), child: Text("PunchOut")),
-                    // ElevatedButton(onPressed: ()async{
-                    //   final data = await storage.read(key: AppSecuredKey.didPunchIn);
-                    //   print(data);
-                    // }, child: Text("read")),
 
                     isLoading || isGettingLocation?AppWidgets.progressIndicator: ElevatedButton(
                       style: AppStyles.elevatedButtonStyleFullWidth,
@@ -77,14 +69,13 @@ class _TimeTrackerPageState extends State<TimeTracker> {
 
                         print(didPunchIn?"Punch Out":"Punch IN");
                         try {
-                          didPunchIn ? await CloudData().punchOut() : await CloudData().punchIn();
+                          provider.setLoadingStatus(true);
+                          FunctionResponse functionResponse =  didPunchIn ? await CloudData().punchOut() : await CloudData().punchIn();
+                          AppUtility.showToast(functionResponse);
                         } catch(e){
-                          setState(() {
-                            isClickable = false;
-                            isLoading = false;
-                          });
-                          AppUtility.showToast(FunctionResponse(success: false, message: "SomeThing Went Wrong! Check Internet Connection."));
+                          AppUtility.showToast(FunctionResponse(success: false, message: "System Error"));
                         }
+                          provider.setLoadingStatus(true);
                       },
                       child: Text(
                           didPunchIn? "Punch Out":"Punch In", style: AppStyles.textOnMainColorheading),

@@ -10,16 +10,70 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers["cookie"] = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().authHeader['cookie'];
-    options.headers["Authorization"] = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().authHeader['Authorization'];
+    options.headers["cookie"] = GlobalNavigator.navigatorKey.currentContext!
+        .read<AppProvider>()
+        .authHeader['cookie'];
+    options.headers["Authorization"] =
+    GlobalNavigator.navigatorKey.currentContext!
+        .read<AppProvider>()
+        .authHeader['Authorization'];
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    if (err.response?.statusCode == 401) {
-      // Handle token refresh logic here
+    final statusCode = err.response?.statusCode;
+    String message;
+
+    try {
+      if (err.response != null) {
+        final data = err.response?.data;
+
+        if (data is Map<String, dynamic>) {
+          message = '${data['error']?['message'] ?? "Something went wrong"}\n\n'
+              '${data['error']?['details'] ?? "Try again later"}';
+        } else {
+          print("Response: $statusCode ${err.response?.data}");
+          message = "Server error. Please try again later.";
+        }
+      } else {
+        message = "Something went wrong! Check your internet connection.";
+      }
+    } catch (_) {
+      message = "System error.";
     }
-    handler.next(err);
+    print("failed message: $message");
+    // Return a fake successful response with `success: false`
+    final fakeResponse = Response(
+      requestOptions: err.requestOptions,
+      data: {
+        "success": false,
+        "message": message,
+      },
+      statusCode: 200, // Ensure client receives this as a 'successful' response
+    );
+
+    handler.resolve(fakeResponse);
   }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    final wrappedResponse = Response(
+      requestOptions: response.requestOptions,
+      data: {
+        "success": true,
+        "data": response.data,
+      },
+      statusCode: response.statusCode,
+      statusMessage: response.statusMessage,
+      headers: response.headers,
+      extra: response.extra,
+      redirects: response.redirects,
+      isRedirect: response.isRedirect,
+    );
+
+    handler.resolve(wrappedResponse);
+  }
+
+
 }
