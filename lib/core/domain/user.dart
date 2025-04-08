@@ -67,15 +67,16 @@ class User extends Employee {
     final json = super.toJson();
     // json['locations'] = locations.map((loc) => loc.toJson()).toList();
     json['group-name'] = permissionGroups;
-    json['lastAttendanceDate'] =
+    json['last_attendance_date'] =
         lastAttendanceDate?.toIso8601String(); // Serializing new property
-    json['lastAttendanceId'] = lastAttendanceId; // Serializing new property
+    json['last_attendance_check'] = lastAttendanceId; // Serializing new property
     return json;
   }
 
   // New method
   bool didPunchinToday() {
-    return lastAttendanceId != null && _isToday(lastAttendanceDate!);
+    bool didPunedin = lastAttendanceId != null && _isToday(lastAttendanceDate);
+    return didPunedin;
   }
 
   void punchedIn(int attendanceId) {
@@ -84,8 +85,9 @@ class User extends Employee {
   }
 }
 
-bool _isToday(DateTime date) {
+bool _isToday(DateTime? date) {
   final now = DateTime.now();
+  if(date==null) return false;
   return date.year == now.year &&
       date.month == now.month &&
       date.day == now.day;

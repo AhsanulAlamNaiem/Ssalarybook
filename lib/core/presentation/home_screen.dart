@@ -151,8 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextButton(onPressed: (){}, child: Text("Contact Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),
                           TextButton(onPressed: ()async{
-                            final data = await FlutterSecureStorage().read(key: CacheKeys.userObject);
-                            print(data);
+                            print(user.lastAttendanceDate);
+                            print(user.lastAttendanceId);
                           }, child: Text("read", style: AppStyles.textH3,)),
                           TextButton(
                               onPressed: () async {

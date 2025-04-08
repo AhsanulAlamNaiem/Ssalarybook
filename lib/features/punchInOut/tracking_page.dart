@@ -25,10 +25,10 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) => LocalData().getCurrentLocation());
-    print("0️⃣Did punched In: ${context.read<PunchingProvider>().didPunchIn}");
-    print("0️⃣Did punched In: ${context.read<AppProvider>().user!.didPunchinToday()}");
-    print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceId}");
-    print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceDate}");
+    // print("0️⃣Did punched In: ${context.read<PunchingProvider>().didPunchIn}");
+    // print("0️⃣Did punched In: ${context.read<AppProvider>().user!.didPunchinToday()}");
+    // print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceId}");
+    // print("0️⃣Did punched In: ${context.read<AppProvider>().user.lastAttendanceDate}");
   }
 
   @override
