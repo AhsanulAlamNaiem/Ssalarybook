@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:provider/provider.dart';
-import '../../constants/secretResources.dart';
+import '../../Local_Data_Manager/cacheKeys.dart';
 import '../app_provider.dart';
 
 
@@ -95,6 +95,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     if(lstAttendanceLog!=null){filteredAttendanceLog = lstAttendanceLog!.where((att){
       return DateFormat('MMMM yyyy').format(selectedDate) == DateFormat('MMMM yyyy').format(att.date);
     }).toList();}
+    filteredAttendanceLog.sort((a,b)=>b.date.compareTo(a.date));
     print(filteredAttendanceLog.length);
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
@@ -162,9 +163,9 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
 
                   child: Table(
                   columnWidths: {
-                    0: FixedColumnWidth(0.33 * screenWidth), // Date column width
-                    1: FixedColumnWidth(0.2 * screenWidth), // Entry column width
-                    2: FixedColumnWidth(0.2 * screenWidth), // Exit column width
+                    0: FixedColumnWidth(0.4 * screenWidth), // Date column width
+                    1: FixedColumnWidth(0.3 * screenWidth), // Entry column width
+                    2: FixedColumnWidth(0.3 * screenWidth), // Exit column width
                   },
                   border: TableBorder(
                     horizontalInside: BorderSide(color: Colors.white, width: 2), // Horizontal borders white
@@ -199,14 +200,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                             'Exit',
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Status',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
-                          ),
-                        ),
+                        )
                       ],
                     ),
                     // Table Rows
@@ -227,11 +221,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                           Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(record.punchOutTime,textAlign: TextAlign.center,),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child:  Text(record.status == 'Late' ? record.status : "",textAlign: TextAlign.center,),
-                          ),
+                          )
                         ],
                       ),
                   ],
