@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:beton_book/core/domain/attendance.dart';
 import 'package:beton_book/core/domain/employee.dart';
+import 'package:beton_book/core/network_manager/api_end_points.dart';
+import 'package:beton_book/core/network_manager/dio_client.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
@@ -27,6 +29,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
   List<Attendance>? lstAttendanceLog;
   List<Attendance> filteredAttendanceLog=[];
   bool isLoading = false;
+  DioClient dioClient = DioClient();
 
   @override
   void initState() {
@@ -51,12 +54,12 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
       isLoading = true;
     });
     final employee = widget.employee;
-    final url = "${AppApis.attendanceLog}?employee=${employee.id}";
+    final url = "${ApiEndPoints.attendanceLog}?employee=${employee.id}";
     print(url);
-    final response = await http.get(Uri.parse(url));
-    print(response.body);
-    final attendanceJson = jsonDecode(response.body);
-    print("${response.statusCode} ${response.body}");
+    final response = await dioClient.get(url);
+    print(response.data);
+    final attendanceJson = response.data;
+    print("${response.statusCode} ${response.data}");
     if(response.statusCode==200){
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
       lstAttendanceLog = attendanceList;

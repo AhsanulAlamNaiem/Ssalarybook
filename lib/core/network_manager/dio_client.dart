@@ -9,7 +9,8 @@ class DioClient {
   DioClient() {
     dio = Dio(
       BaseOptions(
-        baseUrl: "https://salary-book.onrender.com/api",
+        // baseUrl: "https://salary-book.onrender.com/api",
+        baseUrl: "http://192.168.0.105:1327/api",
         connectTimeout: Duration(seconds: 30),
         receiveTimeout: Duration(seconds: 30),
         headers: {
