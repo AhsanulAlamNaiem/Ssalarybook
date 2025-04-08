@@ -22,6 +22,7 @@ class AppProvider extends ChangeNotifier{
   updateUser({required User newUser}){
     user = newUser;
     notifyListeners();
+    print("user Updated in provider");
   }
 
   updateCurrentUsersAttendance(List<Attendance> newAttendanceLog){
@@ -38,4 +39,6 @@ class AppProvider extends ChangeNotifier{
     currentAppVersion = fetchedVersion;
     notifyListeners();
   }
+
+
 }

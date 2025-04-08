@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // user.permissionGroups.add("Admin");
 
     final List<Widget> pages = [
-      EmployeeDetails(employee:  user),
+      user.id ==0? CircularProgressIndicator(): EmployeeDetails(employee:  user),
       TimeTracker(),
       LogsPage(),
       EmployeesPage()
@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 currentIndex: _currentIndex,
 
                 onTap: (index) {
-                  print(index);
+                  print("Index: $index");
                   setState(() {
                     _currentIndex = index;
                   });
