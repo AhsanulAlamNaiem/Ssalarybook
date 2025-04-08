@@ -1,12 +1,12 @@
 class Employee {
   final int id;
   final String name;
-  String designation;
-  String department;
-  String company;
+  final String designation;
+  final String department;
+  final String company;
   final String phone;
   final String email;
-  final String dateOfJoining;
+  final DateTime dateOfJoining;
 
   Employee({
     required this.id,
@@ -22,22 +22,20 @@ class Employee {
   factory Employee.fromJson(Map<String, dynamic> json) {
     return Employee(
       id: json['id'],
-      email: json["user"]['email'],
-      name: "${json['first_name']} ${json['last_name']}",
+      email: json["user"]['email'].toString(),
+      name: json['name'].toString(),
       company: json["company"].toString(),
       department: json['department'].toString(),
       phone: json['mobile'].toString(),
       designation: json['designation'].toString(),
-      dateOfJoining: json['date_of_joining'] ?? "",
+      dateOfJoining: json['date_of_joining'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    final nameParts = name.split(' ');
     return {
       'id': id,
-      'first_name': nameParts.first,
-      'last_name': nameParts.length > 1 ? nameParts.last : "",
+      'name': name,
       'designation': designation,
       'department': department,
       'phone': phone,

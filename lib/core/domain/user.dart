@@ -1,8 +1,8 @@
 import 'package:beton_book/core/domain/employee.dart';
 import 'package:beton_book/features/punchInOut/location.dart';
 class User extends Employee {
-  List<Location> locations;
-  List permissionGroups;
+  final List<Location> locations;
+  final List permissionGroups;
   DateTime? lastAttendanceDate; // New property
   int? lastAttendanceId; // New property
 
@@ -14,7 +14,7 @@ class User extends Employee {
     required String phone,
     required String email,
     required String company,
-    required String dateOfJoining,
+    required DateTime dateOfJoining,
     required this.locations,
     required this.permissionGroups,
     this.lastAttendanceDate, // Initializing new property
