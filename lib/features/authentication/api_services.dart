@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/Local_Data_Manager/cacheClient.dart';
+
 class ApiService{
   final storage = FlutterSecureStorage();
   static String message = "";
@@ -29,8 +31,11 @@ class ApiService{
       globalProvider.updateAuthHeader(newAuthHeader: authHeader);
       bool canFetchedUserInfo = await fetchUserInfoFunction();
       if(canFetchedUserInfo){
+        User user = User.fromJson(userMap);
         globalProvider.updateAuthHeader(newAuthHeader: authHeader);
-        globalProvider.updateUser(newUser: User.fromJson(userMap));
+        globalProvider.updateUser(newUser: user );
+        CacheClient.write(key: CacheKeys.userObject, value: jsonEncode(user.toJson()));
+        CacheClient.write(key: CacheKeys.authHeaders, value: jsonEncode(authHeader));
       }
       return canFetchedUserInfo;
     }
