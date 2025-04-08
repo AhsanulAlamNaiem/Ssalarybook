@@ -1,10 +1,6 @@
 import 'package:beton_book/core/domain/user.dart';
-import 'package:beton_book/core/constants/appResources.dart';
-import 'package:beton_book/features/punchInOut/location.dart';
 import 'package:flutter/material.dart';
-
 import '../domain/attendance.dart';
-
 
 class AppProvider extends ChangeNotifier{
   String currentAppVersion = "0.0.0";

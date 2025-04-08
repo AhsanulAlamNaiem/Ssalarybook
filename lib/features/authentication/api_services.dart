@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'package:beton_book/core/constants/secretResources.dart';
+import 'package:beton_book/core/Local_Data_Manager/cacheKeys.dart';
 import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/core/navigation/global_app_navigator.dart';
 import 'package:beton_book/core/network_manager/api_end_points.dart';
 import 'package:beton_book/core/network_manager/dio_client.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/features/authentication/provider.dart';
-import 'package:beton_book/features/punchInOut/location.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +26,7 @@ class ApiService{
     if(authHeader==null){
       return false;
     } else{
+      globalProvider.updateAuthHeader(newAuthHeader: authHeader);
       bool canFetchedUserInfo = await fetchUserInfoFunction();
       if(canFetchedUserInfo){
         globalProvider.updateAuthHeader(newAuthHeader: authHeader);
@@ -38,7 +38,9 @@ class ApiService{
 
   Future<Map<String, String>?> authenticate({required String email, required String password}) async {
     final body = {"email": email, "password": password};
+    localProvider.setLoadingState(true);
     final response = await dioClient.post(ApiEndPoints.login, data: body);
+    localProvider.setLoadingState(false);
 
     if (response.statusCode == 200) {
       final token = response.data['data']["token"];
@@ -48,10 +50,10 @@ class ApiService{
       final authHeaders = {"cookie": "$csrfToken; $sessionId", "Authorization": "Token $token"};
       return authHeaders;
     }
-
   }
 
   Future<bool> fetchUserInfoFunction() async {
+    localProvider.setLoadingState(true);
     final response = await dioClient.get(ApiEndPoints.employeeDetails);
     localProvider.setLoadingState(false);
     if (response.statusCode == 200) {

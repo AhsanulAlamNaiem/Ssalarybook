@@ -43,5 +43,5 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-/lib/core/constants/secretResources.dart
+/lib/core/Local_Data_Manager/cacheKeys.dart
 apkMover.dart
