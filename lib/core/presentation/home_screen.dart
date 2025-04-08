@@ -151,13 +151,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextButton(onPressed: (){}, child: Text("Contact Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),
                           TextButton(onPressed: ()async{
-                            final data = await FlutterSecureStorage().read(key: AppSecuredKey.userObject);
+                            final data = await FlutterSecureStorage().read(key: CacheKeys.userObject);
                             print(data);
                           }, child: Text("read", style: AppStyles.textH3,)),
                           TextButton(
                               onPressed: () async {
                                 // Handle sign out action
-                                await storage.delete(key: AppSecuredKey.userObject);
+                                await storage.delete(key: CacheKeys.userObject);
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

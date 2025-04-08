@@ -40,7 +40,7 @@ class CloudData{
       final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
       if (response.statusCode == 201) {
         final data = jsonDecode(response.data);
-        _storage.write(key: AppSecuredKey.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
+        _storage.write(key: CacheKeys.didPunchIn, value:  jsonEncode({"attendanceId": "true", "date": DateFormat('yyyy-MM-dd').format(DateTime.now())}));
         responseMessage = data["message"];
         AppUtility.showToast(message: responseMessage);
         _provider.setDidPunchIn(true, attendanceId: 3 );
@@ -102,7 +102,7 @@ class CloudData{
         final message = data["message"];
         AppUtility.showToast(message: message);
 
-        await _storage.delete(key: AppSecuredKey.didPunchIn);
+        await _storage.delete(key: CacheKeys.didPunchIn);
         _provider.setDidPunchIn(true);
 
       }
