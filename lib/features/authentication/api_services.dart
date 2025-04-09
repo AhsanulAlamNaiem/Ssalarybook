@@ -10,8 +10,8 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-
 import '../../core/Local_Data_Manager/cacheClient.dart';
+import '../../core/domain/response.dart';
 
 class ApiService{
   final storage = FlutterSecureStorage();
@@ -24,87 +24,54 @@ class ApiService{
   AppProvider globalProvider = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>();
   AuthenticationProvider localProvider = GlobalNavigator.navigatorKey.currentContext!.read<AuthenticationProvider>();
 
-  Future<bool> login({required String email, required String password})async{
-    final authHeader = await authenticate(email: email, password: password);
-    if(authHeader==null){
-      return false;
+  Future<FunctionResponse> login({required String email, required String password})async{
+    final authenticationResponse = await authenticate(email: email, password: password);
+    if(!authenticationResponse.success){
+      return  authenticationResponse;
     } else{
-      globalProvider.updateAuthHeader(newAuthHeader: authHeader);
-      bool canFetchedUserInfo = await fetchUserInfoFunction();
-      if(canFetchedUserInfo){
+      final userInfoResponse = await fetchUserInfoFunction();
+      if(userInfoResponse.success){
         User user = User.fromJson(userMap);
-        globalProvider.updateAuthHeader(newAuthHeader: authHeader);
         globalProvider.updateUser(newUser: user );
         CacheClient.write(key: CacheKeys.userObject, value: jsonEncode(user.toJson()));
-        CacheClient.write(key: CacheKeys.authHeaders, value: jsonEncode(authHeader));
       }
-      return canFetchedUserInfo;
+      return userInfoResponse;
     }
   }
 
-  Future<Map<String, String>?> authenticate({required String email, required String password}) async {
+  Future<FunctionResponse> authenticate({required String email, required String password}) async {
     final body = {"email": email, "password": password};
     localProvider.setLoadingState(true);
-    try{
-      final response = await dioClient.post(ApiEndPoints.login, data: body);
 
-      if (response.statusCode == 200) {
-        final token = response.data['data']["token"];
-        userMap["id"] = response.data['data']['employee_id'];
+      final response = await dioClient.post(ApiEndPoints.login, data: body);
+    if (response.data['success']) {
+        final token = response.data['data']['data']["token"];
+        userMap["id"] = response.data['data']['data']['employee_id'];
         final csrfToken = response.headers['set-cookie']![0].split(";")[0];
         final sessionId = response.headers['set-cookie']![1].split(";")[0];
         final authHeaders = {
           "cookie": "$csrfToken; $sessionId",
           "Authorization": "Token $token"
         };
-        return authHeaders;
-      }
-    } on DioException catch (e) {
-      if (e.response != null) {
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        if (data is Map<String, dynamic>) {
-          // Server responded error in my request
-          final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
-        }
-      } else {
-        // Network error, timeout, etc.
-        message= "Something went wrong! Check Internet Connection.";
-      }
-    } catch (e) {
-      message= "System Error.";
-    } finally {
-      localProvider.setLoadingState(false);
+        globalProvider.updateAuthHeader(newAuthHeader: authHeaders);
+        CacheClient.write(key: CacheKeys.authHeaders, value: jsonEncode(authHeaders));
+      return FunctionResponse(success: true, message: "Authenticated Successfully");
+    } else{
+      return FunctionResponse.fromMap(response.data);
     }
   }
 
-  Future<bool> fetchUserInfoFunction() async {
+  Future<FunctionResponse> fetchUserInfoFunction() async {
     localProvider.setLoadingState(true);
-    try {
       final response = await dioClient.get(ApiEndPoints.employeeDetails);
-        Map<String, dynamic> responseJson = response.data.cast<String,
+    if (response.data['success']) {
+        Map<String, dynamic> responseJson = response.data['data'].cast<String,
             dynamic>();
         userMap.addAll(responseJson);
         localProvider.setLoadingState(false);
-        return true;
-    }on DioException catch (e) {
-      if (e.response != null) {
-        final statusCode = e.response?.statusCode;
-        final data = e.response?.data;
-        if (data is Map<String, dynamic>) {
-          // Server responded error in my request
-          final message = '${data['error']?['message'] ?? "Something went wrong"}\n\n${data['error']?['details'] ?? "Try again later"}';
-        }
-      } else {
-        // Network error, timeout, etc.
-        message= "Something went wrong! Check Internet Connection.";
-      }
-      return false;
-    } catch (e) {
-      message= "System Error.";
-      return false;
-    } finally {
-      localProvider.setLoadingState(false);
+      return FunctionResponse(success: true, message: message);
+    } else{
+      return FunctionResponse.fromMap(response.data);
     }
   }
 

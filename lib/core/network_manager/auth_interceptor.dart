@@ -27,11 +27,14 @@ class AuthInterceptor extends Interceptor {
 
     try {
       if (err.response != null) {
+        print("have response");
         final data = err.response?.data;
 
         if (data is Map<String, dynamic>) {
-          message = '${data['error']?['message'] ?? "Something went wrong"}\n\n'
+          message = '${data['message'] ?? "Something went wrong"}\n\n'
               '${data['error']?['details'] ?? "Try again later"}';
+
+          print(message);
         } else {
           print("Response: $statusCode ${err.response?.data}");
           message = "Server error. Please try again later.";
@@ -43,7 +46,6 @@ class AuthInterceptor extends Interceptor {
       message = "System error.";
     }
     print("failed message: $message");
-    // Return a fake successful response with `success: false`
     final fakeResponse = Response(
       requestOptions: err.requestOptions,
       data: {

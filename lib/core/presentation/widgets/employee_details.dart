@@ -42,25 +42,43 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     }
   }
 
-  void refresh() {
+  Future _refresh() async{
+    final employee = widget.employee;
+    final url = "${ApiEndPoints.attendanceLog}?employee=${employee.id}";
+    final response = await dioClient.get(url);
+    if(response.data["success"]){
+      final attendanceJson = response.data["data"];
+      List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
+      lstAttendanceLog = attendanceList;
+      if(widget.employee.id == context.read<AppProvider>().user.id){
+        context.read<AppProvider>().updateCurrentUsersAttendance(attendanceList);
+      }
+      print(lstAttendanceLog!.length);
+      print("attendencelog");
+    }else{
+      lstAttendanceLog = [];
+    }
+  }
+
+  Future<void> _refressh() async {
+    await Future.delayed(Duration(seconds: 10)); // simulate network delay
     setState(() {
-      // Your refresh logic goes here
-      print('Page refreshed!');
+      print("false");
     });
   }
+
+
 
   void _loadAttendance() async{
     setState(() {
       isLoading = true;
     });
+
     final employee = widget.employee;
     final url = "${ApiEndPoints.attendanceLog}?employee=${employee.id}";
-    print(url);
     final response = await dioClient.get(url);
-    print(response.data);
-    final attendanceJson = response.data;
-    print("${response.statusCode} ${response.data}");
-    if(response.statusCode==200){
+    if(response.data["success"]){
+    final attendanceJson = response.data["data"];
       List<Attendance> attendanceList =  attendanceJson.map((json){return Attendance.fromJson(json);}).toList().cast<Attendance>(); //Employee.buildFromJson(response.body);
       lstAttendanceLog = attendanceList;
       if(widget.employee.id == context.read<AppProvider>().user.id){
@@ -101,7 +119,9 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     Employee employee = widget.employee;
     final lateDays =  filteredAttendanceLog.where((att){return att.status=="Late";}).toList();
 
-    return SingleChildScrollView( child:  Column( children: [
+    return RefreshIndicator(
+      onRefresh: _refresh,
+       child: SingleChildScrollView( child:  Column( children: [
           Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -158,14 +178,14 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                         ))),
                 SizedBox(height: 0),
                 // Table for employee details
-                (lstAttendanceLog==null) || (employee == null)? AppWidgets.tableLoadingIndicator :
+                (lstAttendanceLog==null) || (employee == null)? AppWidgets.tableLoadingIndicator() :
                 Container(
 
                   child: Table(
                   columnWidths: {
-                    0: FixedColumnWidth(0.4 * screenWidth), // Date column width
-                    1: FixedColumnWidth(0.3 * screenWidth), // Entry column width
-                    2: FixedColumnWidth(0.3 * screenWidth), // Exit column width
+                    0: FixedColumnWidth(0.38 * screenWidth), // Date column width
+                    1: FixedColumnWidth(0.27 * screenWidth), // Entry column width
+                    2: FixedColumnWidth(0.27 * screenWidth), // Exit column width
                   },
                   border: TableBorder(
                     horizontalInside: BorderSide(color: Colors.white, width: 2), // Horizontal borders white
@@ -227,7 +247,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                   ],
                 ))],
             ),
-          )]));
+          )])));
 
   }
 }

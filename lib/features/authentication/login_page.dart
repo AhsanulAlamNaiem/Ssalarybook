@@ -1,18 +1,15 @@
-import 'package:beton_book/features/authentication/api_services.dart';
-import 'package:beton_book/core/domain/user.dart';
+import 'package:beton_book/core/domain/response.dart';
+import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
+import 'package:beton_book/core/presentation/widgets/app_utility.dart';
 import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
+import 'package:beton_book/features/authentication/api_services.dart';
 import 'package:beton_book/features/authentication/provider.dart';
 import 'package:beton_book/features/authentication/sign_up_page.dart';
-import 'package:provider/provider.dart';
-import 'dart:convert';
-import 'package:beton_book/core/constants/appResources.dart';
-import 'package:beton_book/core/presentation/app_provider.dart';
-import 'package:beton_book/core/Local_Data_Manager/cacheKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import '../../core/presentation/home_screen.dart';
 
 class LogInPage extends StatefulWidget {
@@ -33,9 +30,8 @@ class _LogInPageState extends State<LogInPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isLoading = context
-        .watch<AuthenticationProvider>()
-        .isLoading;
+    AuthenticationProvider provider = context
+        .watch<AuthenticationProvider>();
     return Scaffold(
         appBar: PreferredSize(
             preferredSize: Size.fromHeight(80), // Adjust the height as needed
@@ -122,45 +118,22 @@ class _LogInPageState extends State<LogInPage> {
                         activeColor: AppColors.mainColor
                       // Checkbox position
                     ),
-                    isLoading
+                    provider.isLoading
                         ? AppWidgets.progressIndicator
                         : ElevatedButton(
                         style: AppStyles.elevatedButtonStyleFullWidth,
-                        onPressed: () {
+                        onPressed: () async{
                           if (password == "" || email == "") {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                    'Email and Password should not be empty'),
-                                backgroundColor: Colors.red,
-                                duration: Duration(seconds: 3),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
+                            AppUtility.showToast(FunctionResponse(
+                                success: false,
+                                message: "Email and Password can not be empty."));
                             return;
                           }
-                          try {
-                            loginFunction();
-                          } catch (e) {
-                            print("error: $e");
-                            setState(() {
-                              isLoading = false;
-                            });
-                            SnackBar(
-                              content: Text(
-                                  'Something went wrong, check internet connection.'),
-                              backgroundColor: Colors.red,
-                              duration: Duration(seconds: 3),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                              behavior: SnackBarBehavior.floating,
-                            );
-                          }
+                          provider.setLoadingState(true);
+                            await loginFunction().catchError(() {});
+                          provider.setLoadingState(false);
                         },
-                        child: Text(
-                          "Login", style: TextStyle(color: Colors.white),)),
+                        child: Text( "Login", style: TextStyle(color: Colors.white),)),
                     TextButton(onPressed: () =>
                         Navigator.push(context, MaterialPageRoute(builder: (
                             context) => SignUpPage())),
@@ -193,10 +166,11 @@ class _LogInPageState extends State<LogInPage> {
   }
 
   Future<void> loginFunction() async {
-    bool canLoggedIn = await ApiService().login(
+    final loginResponse = await ApiService().login(
         email: email, password: password);
-
-    if (canLoggedIn) {
+    if(!loginResponse.success) {
+      showError(loginResponse.message);
+    }else{
       final user = context
           .read<AppProvider>()
           .user;
@@ -222,8 +196,6 @@ class _LogInPageState extends State<LogInPage> {
               ),
           barrierDismissible: false
       );
-    } else {
-      showError(ApiService.message);
     }
   }
 

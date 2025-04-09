@@ -35,8 +35,9 @@ class _TimeTrackerPageState extends State<TimeTracker> {
   @override
   Widget build(BuildContext context) {
     PunchingProvider provider = context.watch<PunchingProvider>();
+    AppProvider globalProvider = context.watch<AppProvider>();
     String locationMessage = provider.locationMessage;
-    bool didPunchIn =  provider.didPunchIn;
+    bool didPunchIn =  globalProvider.user.didPunchinToday();
     bool isLoading = provider.isLoading;
     bool isClickable = provider.isClickable;
     bool isGettingLocation = provider.isGettingLocation;
@@ -63,19 +64,21 @@ class _TimeTrackerPageState extends State<TimeTracker> {
                         ]
                     ),
 
-                    isLoading || isGettingLocation?AppWidgets.progressIndicator: ElevatedButton(
+                    isLoading || isGettingLocation?
+                    AppWidgets.progressIndicator
+                        : ElevatedButton(
                       style: AppStyles.elevatedButtonStyleFullWidth,
                       onPressed: isGettingLocation || (!isClickable)? null:() async{
-
-                        print(didPunchIn?"Punch Out":"Punch IN");
-                        try {
                           provider.setLoadingStatus(true);
+                          print(didPunchIn?"Punch Out":"Punch IN");
+                        try {
                           FunctionResponse functionResponse =  didPunchIn ? await CloudData().punchOut() : await CloudData().punchIn();
                           AppUtility.showToast(functionResponse);
                         } catch(e){
-                          AppUtility.showToast(FunctionResponse(success: false, message: "System Error"));
+                          print(e);
+                          AppUtility.showToast(FunctionResponse(success: false, message: "System Error\n$e"));
                         }
-                          provider.setLoadingStatus(true);
+                        provider.setLoadingStatus(false);
                       },
                       child: Text(
                           didPunchIn? "Punch Out":"Punch In", style: AppStyles.textOnMainColorheading),

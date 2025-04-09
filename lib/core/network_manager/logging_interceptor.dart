@@ -18,6 +18,7 @@ class LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     print("❌ Error: ${err.message}");
+    print("❌ Error: ${err.response?.data}");
     handler.next(err);
   }
 }

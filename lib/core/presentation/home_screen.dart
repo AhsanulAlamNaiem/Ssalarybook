@@ -1,3 +1,4 @@
+import 'package:beton_book/core/Local_Data_Manager/cacheClient.dart';
 import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/custom_app_bar.dart';
@@ -7,6 +8,7 @@ import 'package:beton_book/features/employee_list/Employees_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import '../../features/punchInOut/provider.dart';
 import '../Local_Data_Manager/CachedDataService.dart';
 import '../Local_Data_Manager/cacheKeys.dart';
 import 'widgets/employee_details.dart';
@@ -151,8 +153,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextButton(onPressed: (){}, child: Text("Contact Us",  style: AppStyles.textH3)),
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),
                           TextButton(onPressed: ()async{
-                            print(user.lastAttendanceDate);
-                            print(user.lastAttendanceId);
+                            final value = await CacheClient.read(key: CacheKeys.userObject);
+                            print(user.didPunchinToday());
+                            print(context.read<PunchingProvider>().didPunchIn);
                           }, child: Text("read", style: AppStyles.textH3,)),
                           TextButton(
                               onPressed: () async {

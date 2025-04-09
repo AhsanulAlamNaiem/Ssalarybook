@@ -50,10 +50,9 @@ class CloudData{
       final response = await _dioClient.post(ApiEndPoints.punchOut, data: body);
 
       if (response.data['success']) {
-        final data = jsonDecode(response.data);
-        responseMessage = data["data"]['message'];
+        responseMessage = response.data["data"]["data"]['message'];
         _provider.setDidPunchIn(false);
-        return FunctionResponse(success: true, message: data["message"]);
+        return FunctionResponse(success: true, message: responseMessage);
       } else{
         return FunctionResponse.fromMap(response.data);
       }
