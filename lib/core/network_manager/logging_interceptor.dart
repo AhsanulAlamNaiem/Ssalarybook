@@ -5,7 +5,7 @@ class LoggingInterceptor extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     print("\n\n➡️ Request: ${options.method} ${options.uri}");
     print("➡️ Body: ${options.data}");
-    print("Headers: ${options.headers}\n\n");
+    print("➡️ Headers: ${options.headers}\n\n\n");
     handler.next(options);
   }
 
