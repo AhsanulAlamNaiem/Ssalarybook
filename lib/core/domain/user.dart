@@ -75,20 +75,22 @@ class User extends Employee {
 
   // New method
   bool didPunchinToday() {
-    bool didPunedin = lastAttendanceId != null && _isToday(lastAttendanceDate);
+    bool didPunedin = lastAttendanceId != null && isToday(lastAttendanceDate);
     return didPunedin;
   }
 
   void punchedIn() {
     lastAttendanceDate = DateTime.now();
-    lastAttendanceId = null;
+    lastAttendanceId = 1;
   }
 }
 
-bool _isToday(DateTime? date) {
+bool isToday(DateTime? date) {
   final now = DateTime.now();
   if(date==null) return false;
-  return date.year == now.year &&
+  bool istoday = date.year == now.year &&
       date.month == now.month &&
       date.day == now.day;
+print("is today: $istoday");
+return istoday;
 }
