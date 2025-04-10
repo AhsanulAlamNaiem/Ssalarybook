@@ -154,11 +154,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           TextButton(onPressed: (){}, child: Text("Terms & Conditions", style: AppStyles.textH3,)),
                           TextButton(onPressed: ()async{
                             final value = await CacheClient.read(key: CacheKeys.userObject);
-                            print(user.didPunchinToday());
-                            print(context.read<PunchingProvider>().didPunchIn);
+                            print("did punchedin: ${user.didPunchinToday()}");
                             print(user.lastAttendanceId);
                             print(user.lastAttendanceDate);
-                            print(user.didPunchinToday());
                           }, child: Text("read", style: AppStyles.textH3,)),
                           TextButton(
                               onPressed: () async {

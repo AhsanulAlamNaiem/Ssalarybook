@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:beton_book/core/domain/response.dart';
 import 'package:beton_book/features/punchInOut/provider.dart';
+import 'package:dio/dio.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/global_app_navigator.dart';
 import '../../core/network_manager/api_end_points.dart';
@@ -27,6 +26,7 @@ class CloudData{
     };
 
       final response = await _dioClient.post(ApiEndPoints.punchIn, data: body);
+    // final response = await fakeResponse(true);
       if (response.data['success']) {
         responseMessage = response.data["data"]["message"];
         _provider.setDidPunchIn(true);
@@ -39,7 +39,7 @@ class CloudData{
 
   Future<FunctionResponse> punchOut() async{
     if(_provider.position==null){
-      return FunctionResponse(success: false, message: "No location Found");;
+      return FunctionResponse(success: false, message: "No location Found");
     }
 
     final body = {
@@ -48,15 +48,28 @@ class CloudData{
     };
 
       final response = await _dioClient.post(ApiEndPoints.punchOut, data: body);
+      // final response = await fakeResponse(true);
 
       if (response.data['success']) {
-        responseMessage = response.data["data"]["data"]['message'];
+        responseMessage = response.data["data"]['message'];
         _provider.setDidPunchIn(false);
         return FunctionResponse(success: true, message: responseMessage);
       } else{
         return FunctionResponse.fromMap(response.data);
       }
 
+  }
+
+
+  Future<Response> _fakeResponse(bool success) async {
+    return Response(
+      requestOptions: RequestOptions(path: ''), // Adding a valid RequestOptions object
+      data: {
+        "success": success,
+        "data": {"message": success?"succeed":"failed"}
+      },
+      statusCode: 200, // Ensure client receives this as a 'successful' response
+    );
   }
 
 }

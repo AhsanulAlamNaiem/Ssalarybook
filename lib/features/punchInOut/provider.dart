@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:beton_book/core/Local_Data_Manager/cacheClient.dart';
+import 'package:beton_book/core/Local_Data_Manager/cacheKeys.dart';
 import 'package:beton_book/core/domain/user.dart';
 import 'package:beton_book/core/constants/appResources.dart';
 import 'package:beton_book/core/constants/global_app_navigator.dart';
@@ -47,8 +51,8 @@ class PunchingProvider extends ChangeNotifier{
 
   // Update punch-in confirmation
   void setDidPunchIn(bool status) {
-    GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!.punchedIn();
-
+    final user = GlobalNavigator.navigatorKey.currentContext!.read<AppProvider>().user!;
+    status?user.punchedIn(): user.punchedOut();
     didPunchIn = status;
     notifyListeners();
   }

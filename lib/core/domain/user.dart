@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:beton_book/core/domain/employee.dart';
 import 'package:beton_book/features/punchInOut/location.dart';
+
+import '../Local_Data_Manager/cacheClient.dart';
+import '../Local_Data_Manager/cacheKeys.dart';
 class User extends Employee {
   // final List<Location> locations;
   final List permissionGroups;
@@ -44,6 +49,7 @@ class User extends Employee {
     final data_Of_Joining = json['date_of_joining'];
 
 
+
     return User(
       id: json['id'],
       name: json['name'].toString(),
@@ -52,12 +58,9 @@ class User extends Employee {
       phone: json['phone'].toString(),
       email: json['email'].toString(),
       company: json["company"].toString(),
-      dateOfJoining: data_Of_Joining!=null? DateTime.parse(data_Of_Joining): DateTime.now(),
-      // locations: locationsListOfLocations,
+      dateOfJoining: _safeDateTimeParse(data_Of_Joining)??DateTime(1970,1,1),
       permissionGroups: json["group-name"] ?? [],
-      lastAttendanceDate: json['last_attendance_date'] != null
-          ? DateTime.parse(json['last_attendance_date'])
-          : null,
+      lastAttendanceDate:_safeDateTimeParse(json['last_attendance_date']),
       lastAttendanceId: json['last_attendance_check'],
     );
   }
@@ -75,17 +78,30 @@ class User extends Employee {
 
   // New method
   bool didPunchinToday() {
-    bool didPunedin = lastAttendanceId != null && isToday(lastAttendanceDate);
-    return didPunedin;
+    if(_isToday(lastAttendanceDate, lastAttendanceId)){ // let user punch in, not punched in today yet.
+      if(lastAttendanceId!=null){
+        return true;
+      } else{
+        return false;
+      }
+    }else { //user may be punched ut today, show him punch in button
+      return false;
+    }
   }
 
   void punchedIn() {
     lastAttendanceDate = DateTime.now();
     lastAttendanceId = 1;
+    CacheClient.write(key: CacheKeys.userObject, value: jsonEncode(toJson()));
+  }
+  void punchedOut() {
+    lastAttendanceDate = DateTime.now();
+    lastAttendanceId = null;
+    CacheClient.write(key: CacheKeys.userObject, value: jsonEncode(toJson()));
   }
 }
 
-bool isToday(DateTime? date) {
+bool _isToday(DateTime? date, int? id) {
   final now = DateTime.now();
   if(date==null) return false;
   bool istoday = date.year == now.year &&
@@ -94,3 +110,14 @@ bool isToday(DateTime? date) {
 print("is today: $istoday");
 return istoday;
 }
+
+ _safeDateTimeParse(String? date) {
+  if (date == null) return null;
+  try {
+    return DateTime.parse(date);
+  } catch (e) {
+    print('Invalid date format: $date'); // Logs invalid date
+    DateTime(1970,1,1); // Handle gracefully
+  }
+}
+
