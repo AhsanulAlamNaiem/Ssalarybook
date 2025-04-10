@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final user = context.watch<AppProvider>().user;
 
-    user.permissionGroups.add("Admin");
+    // user.permissionGroups.add("Admin");
 
     final List<Widget> pages = [
       user.id ==0? CircularProgressIndicator(): EmployeeDetails(employee:  user),
