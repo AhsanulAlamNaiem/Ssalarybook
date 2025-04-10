@@ -118,6 +118,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
     String formattedDate = DateFormat('MMMM yyyy').format(selectedDate);
     Employee employee = widget.employee;
     final lateDays =  filteredAttendanceLog.where((att){return att.status=="Late";}).toList();
+    final absentDays =  filteredAttendanceLog.where((att){return att.status=="Absent";}).toList();
 
     return RefreshIndicator(
       onRefresh: _refresh,
@@ -155,6 +156,7 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                 SizedBox(height: 15,),
                 // Text("Total Absent: 1 day", style: AppStyles.textH2,),
                 Text("Total Late: ${lateDays.length} days", style: AppStyles.textH2,),
+                Text("Total Absents: ${absentDays.length} days", style: AppStyles.textH2,),
                 Text("Salary: *,***.** BDT", style: AppStyles.textH2,),
                 SizedBox(height: 15,),
                 // Display the selected date
@@ -227,7 +229,11 @@ class EmployeeDetailsState extends State<EmployeeDetails> {
                     for (var record in filteredAttendanceLog)
                       TableRow(
                         decoration: BoxDecoration(
-                          color: record.status == 'Late' ? Colors.red.shade100 : Colors.transparent, // Status background color
+                          color: record.status == 'Late'?
+                          Colors.yellow.shade100
+                              :record.status == 'Absent'?
+                          Colors.red.shade100
+                              :Colors.transparent, // Status background color
                         ),
                         children: [
                           Padding(

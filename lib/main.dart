@@ -10,6 +10,7 @@ import 'features/authentication/login_page.dart';
 import 'features/authentication/provider.dart';
 import 'features/punchInOut/provider.dart';
 import 'core/presentation/home_screen.dart';
+import 'features/signup_request_management/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (context)=>AppProvider()),
           ChangeNotifierProvider(create: (context)=>PunchingProvider()),
           ChangeNotifierProvider(create: (context)=>AuthenticationProvider()),
+          ChangeNotifierProvider(create: (context)=>SignUpProvider()),
       ],
     child: MaterialApp(
       localizationsDelegates: const [

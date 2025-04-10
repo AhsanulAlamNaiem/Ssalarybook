@@ -6,11 +6,11 @@ import 'package:beton_book/core/presentation/widgets/app_widgets.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
 import 'package:beton_book/features/authentication/api_services.dart';
 import 'package:beton_book/features/authentication/provider.dart';
-import 'package:beton_book/features/authentication/sign_up_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../../core/presentation/home_screen.dart';
+import '../signup_request_management/sign_up_page.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});

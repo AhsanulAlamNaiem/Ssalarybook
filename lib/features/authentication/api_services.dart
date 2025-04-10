@@ -75,15 +75,6 @@ class ApiService{
     }
   }
 
-
-  Future<List?> fetchCompaniesData() async {
-    final companyUrl = Uri.parse(AppApis.company);
-    final companyResponse = await http.get(companyUrl);
-    print("Company Response: ${companyResponse.body}");
-    if (companyResponse.statusCode == 200) {
-      final companyResponseJson = jsonDecode(companyResponse.body);
-      return companyResponseJson;
-    }}
 }
 
 

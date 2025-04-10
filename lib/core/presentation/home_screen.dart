@@ -3,12 +3,12 @@ import 'package:beton_book/core/presentation/app_provider.dart';
 import 'package:beton_book/core/presentation/app_styles.dart';
 import 'package:beton_book/core/presentation/widgets/custom_app_bar.dart';
 import 'package:beton_book/core/theme/app_colors.dart';
-import 'package:beton_book/features/authentication/signup_requests_page.dart';
 import 'package:beton_book/features/employee_list/Employees_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../../features/punchInOut/provider.dart';
+import '../../features/signup_request_management/signup_requests_page.dart';
 import '../Local_Data_Manager/CachedDataService.dart';
 import '../Local_Data_Manager/cacheKeys.dart';
 import 'widgets/employee_details.dart';
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final user = context.watch<AppProvider>().user;
 
-    // user.permissionGroups.add("Admin");
+    user.permissionGroups.add("Admin");
 
     final List<Widget> pages = [
       user.id ==0? CircularProgressIndicator(): EmployeeDetails(employee:  user),
