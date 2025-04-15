@@ -11,8 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 import 'package:provider/provider.dart';
-import '../../Local_Data_Manager/cacheKeys.dart';
-import '../app_provider.dart';
+import '../../core/Local_Data_Manager/cacheKeys.dart';
+import '../../core/presentation/app_provider.dart';
 
 
 class EmployeeDetails extends StatefulWidget {
