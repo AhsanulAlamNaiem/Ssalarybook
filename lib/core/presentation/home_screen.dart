@@ -11,7 +11,7 @@ import '../../features/punchInOut/provider.dart';
 import '../../features/signup_request_management/signup_requests_page.dart';
 import '../Local_Data_Manager/CachedDataService.dart';
 import '../Local_Data_Manager/cacheKeys.dart';
-import 'widgets/employee_details.dart';
+import '../../features/employee_list/employee_details.dart';
 import '../../features/attendance_log/Logs_page.dart';
 import '../../features/authentication/login_page.dart';
 import '../../features/punchInOut/tracking_page.dart';

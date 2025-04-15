@@ -23,15 +23,18 @@ class Attendance {
     // print(json);
     // print("from model: ${json['id']}");
 
-    DateTime timeIn = DateTime.parse(json['time_in']??'1990-01-01');
-    DateTime timeOut = DateTime.parse(json['time_out']??'1990-01-01');
+    DateTime timeIn = DateTime.parse(json['time_in']??'1990-01-01').add(Duration(hours: 6));
+    DateTime timeOut = DateTime.parse(json['time_out']??'1990-01-01').add(Duration(hours: 6));
+
+    print(timeIn);
+    print(timeOut);
     DateTime date = DateTime.parse(json['date']);
 
     Attendance att = Attendance(
       id: json['id'],
       employee: json['employee'],
-      punchInTime: DateFormat.Hm().format(timeIn),
-      punchOutTime: DateFormat.Hm().format(timeOut),
+      punchInTime: DateFormat.jm().format(timeIn),
+      punchOutTime: DateFormat.jm().format(timeOut),
       status: json['status'],
       date:  date,
     );
